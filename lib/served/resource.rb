@@ -1,0 +1,1 @@
+require 'served/resource/base'
