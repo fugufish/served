@@ -1,4 +1,5 @@
 # Served
+[![Build Status](https://travis-ci.org/fugufish/served.svg)](https://travis-ci.org/fugufish/served)
 
 Served is a gem in the vein of [ActiveResource](https://github.com/rails/activeresource) designed to facilitate
 communication between distributed Rails services.
