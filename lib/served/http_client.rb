@@ -3,11 +3,14 @@ module Served
   class HTTPClient
     def initialize(host)
       @host = host
-      HTTParty.timeout = Served.config.timeout
     end
 
     def get(endpoint, params={})
-      HTTParty.get("#{@host}/#{endpoint}", query: params, headers: { 'Content-Type' => 'application/json' })
+      HTTParty.get("#{@host}/#{endpoint}",
+                   query: params,
+                   headers: { 'Content-Type' => 'application/json' },
+                   timeout: Served.config.timeout
+      )
     end
 
     def put(endpoint, body={}, params={})
@@ -15,7 +18,8 @@ module Served
         "#{@host}/#{endpoint}",
         body:    body.to_json,
         query:   params,
-        headers: { 'Content-Type' => 'application/json' }
+        headers: { 'Content-Type' => 'application/json' },
+        timeout: Served.config.timeout
       )
     end
 
@@ -24,7 +28,8 @@ module Served
         "#{@host}/#{endpoint}",
         body:    body.to_json,
         query:   params,
-        headers: { 'Content-Type' => 'application/json' }
+        headers: { 'Content-Type' => 'application/json' },
+        timeout: Served.config.timeout
       )
     end
   end
