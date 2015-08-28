@@ -10,4 +10,7 @@ require 'served/resource'
 
 module Served
   include ActiveSupport::Configurable
+  configure do |config|
+    config.timeout = 30
+  end
 end

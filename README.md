@@ -34,7 +34,7 @@ Served uses the adjacent namespace of the resource to determine the the url for 
 configuration:
 
 ```ruby
-Served.config do |c|
+Served.configure do |c|
   c.hosts = {
     some_service:       'http://localhost:3000',
     some_other_service: 'http://localhost:3001'
