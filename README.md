@@ -21,3 +21,40 @@ class SomeService::SomeResource < Served::Resource::Base
 
 end
 ```
+
+# Configuration
+
+Served is configured using ```Served.config```.
+
+## Configuration Options
+
+### Hosts (required)
+
+Served uses the adjacent namespace of the resource to determine the the url for that service. For example given this
+configuration:
+
+```ruby
+Served.config do |c|
+  c.hosts = {
+    some_service:       'http://localhost:3000',
+    some_other_service: 'http://localhost:3001'
+  }
+```
+
+and given this resource
+
+```ruby
+class SomeService::SomeResource < Served::Resource::Base
+
+   attribute :name
+   attribute :date
+   attribute :phone_number
+
+end
+```
+
+```SomeService::SomeResource``` would map back to http://localhost:3000/some_resources.
+
+### Timeout
+
+Sets the request time out.

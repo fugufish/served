@@ -3,6 +3,7 @@ module Served
   class HTTPClient
     def initialize(host)
       @host = host
+      HTTParty.default_timeoout = Served.config.timeout
     end
 
     def get(endpoint, params={})
