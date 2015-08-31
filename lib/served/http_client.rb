@@ -1,12 +1,18 @@
 module Served
   # Provides an interface between HTTParty and the models. Most of the crap in here is self explanatory
   class HTTPClient
+    HEADERS = { 'Content-type' => 'application/json', 'Accept' => 'application/json' }
+
     def initialize(host)
       @host = host
     end
 
     def get(endpoint, params={})
-      HTTParty.get("#{@host}/#{endpoint}", query: params, headers: { 'Content-Type' => 'application/json' })
+      HTTParty.get("#{@host}/#{endpoint}",
+                   query: params,
+                   headers: HEADERS,
+                   timeout: Served.config.timeout
+      )
     end
 
     def put(endpoint, body={}, params={})
@@ -14,7 +20,8 @@ module Served
         "#{@host}/#{endpoint}",
         body:    body.to_json,
         query:   params,
-        headers: { 'Content-Type' => 'application/json' }
+        headers: HEADERS,
+        timeout: Served.config.timeout
       )
     end
 
@@ -23,7 +30,8 @@ module Served
         "#{@host}/#{endpoint}",
         body:    body.to_json,
         query:   params,
-        headers: { 'Content-Type' => 'application/json' }
+        headers: HEADERS,
+        timeout: Served.config.timeout
       )
     end
   end
