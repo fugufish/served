@@ -91,6 +91,8 @@ module Served
         end
       end
 
+      alias_method :save!, :save # TODO: differentiate save! and safe much the same AR does.
+
       # Returns a hash of attributes. If `with_values` is true, it will return only attributes whose values are not nil
       #
       # @param [Boolean] with_values whether or not to return all attributes or only those whose values are not nil
