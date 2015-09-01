@@ -114,19 +114,68 @@ describe Served::Resource::Base do
 
     end
 
+    describe '#to_json' do
+      context 'with presenter' do
+
+        let(:klass) {
+          module Served
+            module SomeModule
+              # Test class
+              class ResourceTest < Served::Resource::Base
+                attribute :attr1
+                attribute :attr2
+                attribute :attr3
+
+                def presenter
+                  {attr1: 1}
+                end
+              end
+            end
+          end
+          Served::SomeModule::ResourceTest
+        }
+
+        it 'returns the results of the presenter' do
+          expect(klass.new(attr1: 1, attr2: 2).to_json).to eq({attr1: 1}.to_json)
+        end
+
+      end
+
+      context 'without presenter' do
+        let(:klass) {
+          module Served
+            module SomeModule
+              # Test class
+              class ResourceTest < Served::Resource::Base
+                attribute :attr1
+                attribute :attr2
+                attribute :attr3
+              end
+            end
+          end
+          Served::SomeModule::ResourceTest
+        }
+
+        it 'returns there results of the serialized attributes' do
+          expect(klass.new(attr1: 1, attr2: 2).to_json)
+            .to eq({klass.resource_name.singularize => { id: nil, attr1: 1, attr2: 2, attr3: nil}}.to_json)
+        end
+      end
+    end
+
     describe '#save' do
 
       context 'new record' do
 
         subject { klass.new(attr1: 1) }
 
-        let(:response) { { klass.resource_name.singularize => { attr1: 1 } } }
+        let(:response) { { subject.resource_name.singularize => { attr1: 1 } } }
 
         it 'calls reload_with_attributes with the result of  post with the  current attributes' do
-          klass.new(attr1: 1)
-          expect(subject).to receive(:post).with(attr1: 1).and_return(response)
-          expect(subject).to receive(:reload_with_attributes).with(response[klass.resource_name.singularize])
-          subject.save
+          expect(subject).to receive(:post)
+                               .and_return(response)
+          expect(subject).to receive(:reload_with_attributes).with(response[subject.resource_name.singularize])
+          expect(subject.save).to eq true
         end
 
       end
@@ -138,8 +187,7 @@ describe Served::Resource::Base do
         let(:response) { { klass.resource_name.singularize => { id: 1, attr1: 1 } } }
 
         it 'calls reload_with_attributes with the result of  post with the  current attributes' do
-          klass.new(attr1: 1)
-          expect(subject).to receive(:put).with(id: 1, attr1: 1).and_return(response)
+          expect(subject).to receive(:put).and_return(response)
           expect(subject).to receive(:reload_with_attributes).with(response[klass.resource_name.singularize])
           subject.save
         end
@@ -155,42 +203,8 @@ describe Served::Resource::Base do
 
       it 'calls #handle_response with the result of the GET request' do
         expect(subject).to receive(:handle_response).with(response)
-        expect(klass.client).to receive(:get).with("/#{klass.resource_name}/#{subject.id}", {}).and_return(response)
+        expect(klass.client).to receive(:get).with("/#{klass.resource_name}/#{subject.id}.json", {}).and_return(response)
         subject.send(:get)
-      end
-
-    end
-
-    describe '#put' do
-
-      subject { klass.new(id: 1) }
-      let(:response) { double('Response', body: { klass.resource_name.singularize => { id: 1, attr1: 1 } }, code: 200) }
-
-      it 'calls handle_response with the result of the {IT request' do
-        expect(subject).to receive(:handle_response).with(response)
-        attributes = subject.attributes
-        attributes.delete(:id) # should not PUT with id
-        expect(klass.client).to receive(:put).
-                                  with("/#{klass.resource_name}/#{subject.id}",
-                                       { klass.resource_name.singularize => attributes }, {}).
-                                  and_return(response)
-        subject.send(:put, subject.attributes)
-      end
-
-    end
-
-    describe '#post' do
-
-      subject { klass.new(id: 1) }
-      let(:response) { double('Response', body: { klass.resource_name.singularize => { attr1: 1 } }, code: 200) }
-
-      it 'calls handle_response with the result of the {IT request' do
-        expect(subject).to receive(:handle_response).with(response)
-        expect(klass.client).to receive(:post).
-                                  with("/#{klass.resource_name}",
-                                       { klass.resource_name.singularize => subject.attributes }, {}).
-                                  and_return(response)
-        subject.send(:post, subject.attributes)
       end
 
     end

@@ -85,10 +85,11 @@ module Served
       # to update the record
       def save
         if id
-          reload_with_attributes(put(attributes(true))[resource_name.singularize])
+          reload_with_attributes(put[resource_name.singularize])
         else
-          reload_with_attributes(post(attributes(true))[resource_name.singularize])
+          reload_with_attributes(post[resource_name.singularize])
         end
+        true
       end
 
       alias_method :save!, :save # TODO: differentiate save! and safe much the same AR does.
@@ -96,9 +97,8 @@ module Served
       # Returns a hash of attributes. If `with_values` is true, it will return only attributes whose values are not nil
       #
       # @param [Boolean] with_values whether or not to return all attributes or only those whose values are not nil
-      def attributes(with_values=false)
-        return Hash[self.class.attributes.collect { |name| [name, send(name)] }] unless with_values
-        attributes.select { |name| send(name) }
+      def attributes
+        Hash[self.class.attributes.collect { |name| [name, send(name)] }]
       end
 
       # Reloads the resource using attributes from the service
@@ -106,25 +106,39 @@ module Served
         reload_with_attributes(get)
       end
 
+      # renders the model as json
+      def to_json
+        raise InvalidPresenter, 'Presenter must respond to #to_json' unless presenter.respond_to? :to_json
+        presenter.to_json
+      end
+
+      # override this to return a presenter to be used for serialization, otherwise all attributes will be
+      # serialized
+      def presenter
+        { resource_name.singularize => attributes }
+      end
+
       private
 
       def get(params={})
-        handle_response(client.get("/#{resource_name}/#{id}", params))
+        handle_response(client.get("/#{resource_name}/#{id}.json", params))
       end
 
-      def put(body={}, params={})
-        body.delete(:id) # don't send the id
-        handle_response(client.put("/#{resource_name}/#{id}", {resource_name.singularize => body}, params))
+      def put(params={})
+        body = to_json
+        handle_response(client.put("/#{resource_name}/#{id}.json", body, params))
       end
 
-      def post(body={}, params={})
-        handle_response(client.post("/#{resource_name}", {resource_name.singularize => body}, params))
+      def post(params={})
+        body = to_json
+        handle_response(client.post("/#{resource_name}.json", body, params))
       end
 
       def handle_response(response)
         raise ServiceError, response unless (200..299).include?(response.code)
         response.body
       end
+
 
       def reload_with_attributes(attributes)
         attributes.each { |name, value| set_attribute(name.to_sym, value) }
