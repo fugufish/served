@@ -15,20 +15,20 @@ module Served
       )
     end
 
-    def put(endpoint, body={}, params={})
+    def put(endpoint, body, params={})
       HTTParty.put(
         "#{@host}/#{endpoint}",
-        body:    body.to_json,
+        body:    body,
         query:   params,
         headers: HEADERS,
         timeout: Served.config.timeout
       )
     end
 
-    def post(endpoint, body={}, params={})
+    def post(endpoint, body, params={})
       HTTParty.post(
         "#{@host}/#{endpoint}",
-        body:    body.to_json,
+        body:    body,
         query:   params,
         headers: HEADERS,
         timeout: Served.config.timeout
