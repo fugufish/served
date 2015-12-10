@@ -23,15 +23,15 @@ module Served
         #   class SomeResource
         #     attribute :attr1
         #   end
-        def attribute(name)
+        def attribute(name, options={})
           return if attributes.include?(name)
-          attributes << name
+          attributes[name] = options
           attr_accessor name
         end
 
-        # @return [Array] declared attributes for the resources
+        # @return [Hash] declared attributes for the resources
         def attributes
-          @attributes ||= []
+          @attributes ||= {}
         end
 
         # Looks up a resource on the service by id. For example `SomeResource.find(5)` would call `/some_resources/5`
@@ -98,7 +98,7 @@ module Served
       #
       # @param [Boolean] with_values whether or not to return all attributes or only those whose values are not nil
       def attributes
-        Hash[self.class.attributes.collect { |name| [name, send(name)] }]
+        Hash[self.class.attributes.keys.collect { |name| [name, send(name)] }]
       end
 
       # Reloads the resource using attributes from the service
@@ -141,7 +141,17 @@ module Served
 
 
       def reload_with_attributes(attributes)
-        attributes.each { |name, value| set_attribute(name.to_sym, value) }
+        attributes.each do |name, value|
+          set_attribute(name.to_sym, value)
+        end
+        set_attribute_defaults
+      end
+
+      def set_attribute_defaults
+        self.class.attributes.each do |attr, options|
+          next if options[:default].nil? || send(attr)
+          set_attribute(attr, options[:default])
+        end
       end
 
       def set_attribute(name, value)

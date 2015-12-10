@@ -22,6 +22,7 @@ describe Served::Resource::Base do
           # Test class
           class ResourceTest < Served::Resource::Base
             attribute :test
+            attribute :test_with_default, default: 'test'
           end
         end
       end
@@ -34,6 +35,10 @@ describe Served::Resource::Base do
         expect(subject.attributes.include?(:test)).to be true
         expect(subject.new).to respond_to(:test)
         expect(subject.new).to respond_to(:test=)
+      end
+
+      it 'sets the default value if the default option is present' do
+        expect(subject.new.test_with_default).to eq('test')
       end
 
     end
