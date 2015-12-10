@@ -136,7 +136,7 @@ module Served
 
       def handle_response(response)
         raise ServiceError, response unless (200..299).include?(response.code)
-        response.body
+        JSON.parse(response.body)
       end
 
 

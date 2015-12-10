@@ -23,7 +23,7 @@ describe Served::HTTPClient do
                                     headers: Served::HTTPClient::HEADERS,
                                     timeout: Served.config.timeout
                               ).and_return(true)
-      subject.post('test', { foo: :bar }, { q: 1 })
+      subject.post('test', { foo: :bar }.to_json, { q: 1 })
     end
   end
 
@@ -37,7 +37,7 @@ describe Served::HTTPClient do
               headers: Served::HTTPClient::HEADERS,
               timeout: Served.config.timeout
           ).and_return(true)
-      subject.put('test', { foo: :bar }, { q: 1 })
+      subject.put('test', { foo: :bar }.to_json, { q: 1 })
     end
   end
 end
