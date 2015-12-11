@@ -2,13 +2,45 @@
 [![Build Status](https://travis-ci.org/optoro/served.svg)](https://travis-ci.org/optoro/served)
 
 Served is a gem in the vein of [ActiveResource](https://github.com/rails/activeresource) designed to facilitate
-communication between distributed Rails services.
+communication between distributed services and APIs.
 
 # Installation
 
 Add the following to your Gemfile:
 
 ```gem 'served'```
+
+# Configuration
+Served is configured by passing a block to ```Served::configure```.
+
+```ruby
+Served.configure do |config|
+  config.hosts = {
+    'some_service' => 'http://localhost:3000'
+   }
+   
+   config.timeout = 100
+end
+```
+
+## Hosts
+Served models derive their hostname by mapping their parent module to the ```Served::hosts``` configuration hash. For
+example, ```SomeService::SomeResource``` would look up its host configuration at 
+```Served.config.hosts['some_service']```.
+
+The host configuration accepts an (Addressable)[https://github.com/sporkmonger/addressable] template mapping
+```resource``` as the resource name (derived from the model name) and ```query``` as the params. For example:
+
+```
+http://localhost:3000/{resource}{?query*}
+```
+
+For more on building Addressable templates view the addressable documentation. If the host configuration is not an
+Addressable template, a default template will be applied (```{resource}.json{?query*}```). This is the current
+maintained for backwards compatibility, however the extension will likely be removed for the 0.2 release.
+
+## Timeout
+Sets the request timeout in milliseconds.
 
 
 # Usage
@@ -29,39 +61,4 @@ Served follows resourceful standards. When a resource is initially saved a **POS
 to the service. When the resource already exists, a **PUT** request will be sent. Served determines if
 a resource is new or not based on the presence of an id.
 
-# Configuration
 
-Served is configured using ```Served.config```.
-
-## Configuration Options
-
-### Hosts (required)
-
-Served uses the adjacent namespace of the resource to determine the the url for that service. For example given this
-configuration:
-
-```ruby
-Served.configure do |c|
-  c.hosts = {
-    some_service:       'http://localhost:3000',
-    some_other_service: 'http://localhost:3001'
-  }
-```
-
-and given this resource
-
-```ruby
-class SomeService::SomeResource < Served::Resource::Base
-
-   attribute :name
-   attribute :date
-   attribute :phone_number
-
-end
-```
-
-```SomeService::SomeResource``` would map back to http://localhost:3000/some_resources.
-
-### Timeout
-
-Sets the request time out.

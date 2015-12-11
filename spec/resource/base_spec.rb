@@ -54,7 +54,7 @@ describe Served::Resource::Base do
     describe '::host' do
 
       it 'returns the url for SomeModule host' do
-        expect(subject.host).to eq test_host
+        expect(subject.host_config).to eq test_host
       end
 
     end
@@ -208,7 +208,7 @@ describe Served::Resource::Base do
 
       it 'calls #handle_response with the result of the GET request' do
         expect(subject).to receive(:handle_response).with(response)
-        expect(klass.client).to receive(:get).with("/#{klass.resource_name}/#{subject.id}.json", {}).and_return(response)
+        expect(klass.client).to receive(:get).with("#{klass.resource_name}/#{subject.id}", {}).and_return(response)
         subject.send(:get)
       end
 
