@@ -45,16 +45,16 @@ module Served
           name.split('::').last.tableize
         end
 
-        # @return [String] the configured host.
+        # @return [String] or [Hash] the configured host.
         # @see Services::Configuration
-        def host
+        def host_config
           Served.config[:hosts][parent.name.underscore.split('/')[-1]]
         end
 
         # @return [Served::HTTPClient] The connection instance to the service host. Note this is not an active
         # connection but a passive one.
         def client
-          @connection ||= Served::HTTPClient.new(host)
+          @connection ||= Served::HTTPClient.new(host_config)
         end
 
         private
@@ -121,17 +121,17 @@ module Served
       private
 
       def get(params={})
-        handle_response(client.get("/#{resource_name}/#{id}.json", params))
+        handle_response(client.get("#{resource_name}/#{id}", params))
       end
 
       def put(params={})
         body = to_json
-        handle_response(client.put("/#{resource_name}/#{id}.json", body, params))
+        handle_response(client.put("#{resource_name}/#{id}", body, params))
       end
 
       def post(params={})
         body = to_json
-        handle_response(client.post("/#{resource_name}.json", body, params))
+        handle_response(client.post("#{resource_name}", body, params))
       end
 
       def handle_response(response)
