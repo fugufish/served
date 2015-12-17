@@ -101,6 +101,7 @@ module Served
       # Reloads the resource using attributes from the service
       def reload
         reload_with_attributes(get)
+        self
       end
 
       # renders the model as json
