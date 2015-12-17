@@ -94,9 +94,6 @@ module Served
 
       alias_method :save!, :save # TODO: differentiate save! and safe much the same AR does.
 
-      # Returns a hash of attributes. If `with_values` is true, it will return only attributes whose values are not nil
-      #
-      # @param [Boolean] with_values whether or not to return all attributes or only those whose values are not nil
       def attributes
         Hash[self.class.attributes.keys.collect { |name| [name, send(name)] }]
       end
@@ -104,6 +101,7 @@ module Served
       # Reloads the resource using attributes from the service
       def reload
         reload_with_attributes(get)
+        self
       end
 
       # renders the model as json
@@ -121,17 +119,17 @@ module Served
       private
 
       def get(params={})
-        handle_response(client.get("#{resource_name}/#{id}", params))
+        handle_response(client.get(resource_name, id, params))
       end
 
       def put(params={})
         body = to_json
-        handle_response(client.put("#{resource_name}/#{id}", body, params))
+        handle_response(client.put(resource_name, id, body, params))
       end
 
       def post(params={})
         body = to_json
-        handle_response(client.post("#{resource_name}", body, params))
+        handle_response(client.post(resource_name, body, params))
       end
 
       def handle_response(response)
