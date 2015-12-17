@@ -18,11 +18,11 @@ describe Served::HTTPClient do
   describe '#get' do
     it 'calls the endpoint with the correct query and headers' do
       expect(HTTParty).to receive(:get)
-                              .with('http://host/test.json?q=1',
+                              .with('http://host/test/1.json?q=1',
                                     headers: Served::HTTPClient::HEADERS,
                                     timeout: Served.config.timeout
                               ).and_return(true)
-      subject.get('test', { q: 1 })
+      subject.get('test', 1, { q: 1 })
     end
   end
 
@@ -42,12 +42,12 @@ describe Served::HTTPClient do
     it 'calls the endpoint with the correct query and headers' do
       expect(HTTParty).to receive(:put).
           with(
-              'http://host/test.json?q=1',
+              'http://host/test/1.json?q=1',
               body:    { foo: :bar }.to_json,
               headers: Served::HTTPClient::HEADERS,
               timeout: Served.config.timeout
           ).and_return(true)
-      subject.put('test', { foo: :bar }.to_json, { q: 1 })
+      subject.put('test', 1, { foo: :bar }.to_json, { q: 1 })
     end
   end
 end

@@ -3,7 +3,7 @@ module Served
   # Provides an interface between HTTParty and the models. Most of the crap in here is self explanatory
   class HTTPClient
     HEADERS = { 'Content-type' => 'application/json', 'Accept' => 'application/json' }
-    DEFAULT_TEMPLATE = '{resource}.json{?query*}'
+    DEFAULT_TEMPLATE = '{resource}{/id}.json{?query*}'
 
     def initialize(host)
       unless host =~ /{.+}/
@@ -12,15 +12,15 @@ module Served
       @template = Addressable::Template.new(host)
     end
 
-    def get(endpoint, params={})
-      HTTParty.get(@template.expand(query: params, resource: endpoint).to_s,
+    def get(endpoint, id, params={})
+      HTTParty.get(@template.expand(id: id, query: params, resource: endpoint).to_s,
                    headers: HEADERS,
                    timeout: Served.config.timeout
       )
     end
 
-    def put(endpoint, body, params={})
-      HTTParty.put(@template.expand(query: params, resource: endpoint).to_s,
+    def put(endpoint, id, body, params={})
+      HTTParty.put(@template.expand(id: id, query: params, resource: endpoint).to_s,
         body:    body,
         headers: HEADERS,
         timeout: Served.config.timeout
