@@ -3,12 +3,10 @@ module Served
   # Provides an interface between HTTParty and the models. Most of the crap in here is self explanatory
   class HTTPClient
     HEADERS = { 'Content-type' => 'application/json', 'Accept' => 'application/json' }
-    DEFAULT_TEMPLATE = '{resource}{/id}.json{?query*}'
+    DEFAULT_TEMPLATE = '{/resource*}{/id}.json{?query*}'
 
     def initialize(host)
-      unless host =~ /{.+}/
-        host = "#{host}/#{DEFAULT_TEMPLATE}"
-      end
+      host += DEFAULT_TEMPLATE unless host =~ /{.+}/
       @template = Addressable::Template.new(host)
     end
 
