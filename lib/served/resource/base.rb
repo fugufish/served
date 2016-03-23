@@ -10,9 +10,11 @@ module Served
 
       # raised when the connection receives a response from a service that does not constitute a 200
       class ServiceError < StandardError
+        attr_reader :response
+
         def initialize(response)
-          @code = response.code
-          super "An error occurred making the request: #{@code}"
+          @response = response
+          super "An error occurred making the request: #{@response.code}"
         end
       end
 
