@@ -1,9 +1,9 @@
 require 'spec_helper'
 describe Served::HTTPClient do
-  subject { Served::HTTPClient.new('http://host') }
+  subject { Served::HTTPClient.new('http://host', Served.config.timeout) }
 
   context 'with an addressable template' do
-    subject { Served::HTTPClient.new('http://host/{resource}.foo') }
+    subject { Served::HTTPClient.new('http://host/{resource}.foo', Served.config.timeout) }
 
      it 'does not use the default config template' do
        expect(subject.instance_variable_get(:@template).
