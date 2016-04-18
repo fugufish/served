@@ -53,10 +53,15 @@ module Served
           Served.config[:hosts][parent.name.underscore.split('/')[-1]]
         end
 
+        # @return [Integer] allowed timeout in seconds
+        def timeout
+          Served.config.timeout
+        end
+
         # @return [Served::HTTPClient] The connection instance to the service host. Note this is not an active
         # connection but a passive one.
         def client
-          @connection ||= Served::HTTPClient.new(host_config)
+          @connection ||= Served::HTTPClient.new(host_config, timeout)
         end
 
         private
