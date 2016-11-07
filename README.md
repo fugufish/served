@@ -21,6 +21,8 @@ Served.configure do |config|
    }
    
    config.timeout = 100
+   
+   config.backend = :patron
 end
 ```
 
@@ -43,6 +45,10 @@ maintained for backwards compatibility, however the extension will likely be rem
 ## Timeout
 Sets the request timeout in milliseconds.
 
+## Backend
+Configure the HTTP client backend. Supports either :http (default), which will use the HTTP client, or :patron, which 
+will use Patron. Patron is suggested for use if high concurrency between requests is required. Also requires the 
+machine to have libcurl.
 
 # Usage
 A service model can be created by declaring a class inheriting from ```Service::Resource::Base```.

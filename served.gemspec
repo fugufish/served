@@ -22,6 +22,9 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'httparty'
   spec.add_dependency 'activesupport', '>= 3.2'
   spec.add_dependency 'addressable',   '>= 2.4.0'
+  spec.add_dependency 'celluloid-io'
+  spec.add_dependency 'oj'
+  spec.add_dependency 'http'
 
   spec.add_development_dependency 'bundler', '~> 1.10'
   spec.add_development_dependency 'rake', '~> 10.0'

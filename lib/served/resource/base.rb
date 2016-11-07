@@ -25,25 +25,51 @@ module Served
         #   class SomeResource
         #     attribute :attr1
         #   end
+        #
+        # @param name [Symbol] the name of the attribute
         def attribute(name, options={})
           return if attributes.include?(name)
           attributes[name] = options
           attr_accessor name
         end
 
+        # declare a set of attributes by name
+        #
+        # @example
+        #   class SomeResource
+        #     attributes :attr1, :attr2
+        #   end
+        #
+        # @param *attributes [Array] a list of attributes for the resource
         # @return [Hash] declared attributes for the resources
-        def attributes
+        def attributes(*args)
+          args.each { |a| attribute a } unless args.empty?
           @attributes ||= {}
         end
 
+        # Defines the default headers that should be used for the request.
+        #
+        # @param headers [Hash] the headers to send with each requesat
+        # @return headers [Hash] the default headers for the class
+        def headers(h={})
+          @headers = h unless h.empty?
+          @headers
+        end
+
         # Looks up a resource on the service by id. For example `SomeResource.find(5)` would call `/some_resources/5`
+        #
+        # @param id [Integer] the id of the resource
+        # @return [Resource::Base] the resource object.
         def find(id)
           instance = new(id: id)
           instance.reload
         end
 
+        # Get or set the resource name for the given resource
+        #
         # @return [String] the name of the resource. `SomeResource.resource_name` will return `some_resources`
-        def resource_name
+        def resource_name(resource=nil)
+
           name.split('::').last.tableize
         end
 

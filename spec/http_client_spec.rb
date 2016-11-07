@@ -15,7 +15,7 @@ describe Served::HTTPClient do
 
   describe '#get' do
     it 'calls the endpoint with the correct query and headers' do
-      expect(HTTParty).to receive(:get)
+      expect(HTTP).to receive(:get)
                               .with('http://host/dir1/dir2/test/1.json?q=1',
                                     headers: Served::HTTPClient::HEADERS,
                                     timeout: Served.config.timeout
