@@ -54,7 +54,7 @@ describe Served::Resource::Base do
     describe '::host' do
 
       it 'returns the url for SomeModule host' do
-        expect(subject.host_config).to eq test_host
+        expect(subject.host).to eq test_host
       end
 
     end
