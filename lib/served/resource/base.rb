@@ -65,29 +65,35 @@ module Served
           instance.reload
         end
 
-        # Get or set the resource name for the given resource
+        # Get or set the resource name for the given resource used for endpoint generation
         #
+        # @param resource [String] the name of the resource
         # @return [String] the name of the resource. `SomeResource.resource_name` will return `some_resources`
         def resource_name(resource=nil)
-
-          name.split('::').last.tableize
+          @resource_name = resource if resource
+          @resource_name || name.split('::').last.tableize
         end
 
+        # Get or set the host for the resource
+        #
+        # @param host [String] the resource host
         # @return [String] or [Hash] the configured host.
         # @see Services::Configuration
-        def host_config
-          Served.config[:hosts][parent.name.underscore.split('/')[-1]]
+        def host(h=nil)
+          @host = h if h
+          @host ||= Served.config[:hosts][parent.name.underscore.split('/')[-1]]
         end
 
+        # Get or set the timeout for the current resource
+        #
         # @return [Integer] allowed timeout in seconds
-        def timeout
-          Served.config.timeout
+        def timeout(sec=nil)
+          @timeout = sec if sec
+          @timeout || Served.config.timeout
         end
 
-        # @return [Served::HTTPClient] The connection instance to the service host. Note this is not an active
-        # connection but a passive one.
         def client
-          @connection ||= Served::HTTPClient.new(host_config, timeout)
+          @connection ||= Served::HTTPClient.new(host, timeout)
         end
 
         private
@@ -193,6 +199,7 @@ module Served
       def client
         self.class.client
       end
+
     end
   end
 end
