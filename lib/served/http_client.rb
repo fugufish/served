@@ -13,7 +13,11 @@ module Served
       @timeout  = timeout
     end
 
+    private
 
+    def headers
+      HEADERS
+    end
 
   end
 end
