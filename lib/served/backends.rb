@@ -1,17 +1,19 @@
-require_relative 'backends/http'
-require_relative 'backends/patron'
-
 module Served
   module Backends
 
     # @private
     def self.[](backend)
       @backends ||= {
-        http:   HTTP,
-        patron: Patron
+        http:     'HTTP',
+        patron:   'Patron',
+        httparty: 'HTTParty'
       }
-      return @backends[backend] if @backends[backend]
-      @backends[:http]
+      if @backends[backend]
+        require_relative "backends/#{backend}"
+        return self.const_get(@backends[backend].classify.to_sym)
+      end
+      require_relative 'backends/httparty'
+      self.const_get(@backends[:httparty].classify.to_sym)
     end
 
   end

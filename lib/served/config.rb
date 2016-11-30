@@ -6,7 +6,7 @@ module Served
   end
 
   config_accessor :backend do
-    :http
+    :httparty
   end
 
 end
