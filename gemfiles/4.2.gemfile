@@ -1,1 +1,1 @@
-gem 'active_support', '~> 4.2'
+gem 'activesupport', '~> 4.2'
