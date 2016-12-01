@@ -95,8 +95,32 @@ describe Served::HTTPClient do
         expect(::HTTP).to receive(:timeout).with(global: Served.config.timeout).and_return(http_chain_timeout)
         expect(http_chain_timeout).to receive(:headers).and_return(http_chain_headers)
         expect(http_chain_headers).to receive(:put)
-                                          .with('http://host/dir1/dir2/test/1.json?q=1', body: {foo: :bar}.to_json).and_return(true)
+                                          .with('http://host/test/1.json?q=1', body: {foo: :bar}.to_json).and_return(true)
         subject.put('test', 1, {foo: :bar}.to_json, {q: 1})
+      end
+
+    end
+
+    describe '#post' do
+
+      it 'calls the endpoint with the correct query and headers' do
+        expect(::HTTP).to receive(:timeout).with(global: Served.config.timeout).and_return(http_chain_timeout)
+        expect(http_chain_timeout).to receive(:headers).and_return(http_chain_headers)
+        expect(http_chain_headers).to receive(:post)
+                                          .with('http://host/test.json?q=1', body: {foo: :bar}.to_json).and_return(true)
+        subject.post('test', {foo: :bar}.to_json, {q: 1})
+      end
+
+    end
+
+    describe '#delete' do
+
+      it 'calls the endpoint with the correct query and headers' do
+        expect(::HTTP).to receive(:timeout).with(global: Served.config.timeout).and_return(http_chain_timeout)
+        expect(http_chain_timeout).to receive(:headers).and_return(http_chain_headers)
+        expect(http_chain_headers).to receive(:delete)
+                                          .with('http://host/test/1.json?q=1').and_return(true)
+        subject.delete('test', 1, {q: 1})
       end
 
     end
