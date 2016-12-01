@@ -64,6 +64,18 @@ describe Served::HTTPClient do
       end
     end
 
+    describe '#delete' do
+      it 'calls the endpoint with the correct query and headers' do
+        expect(::HTTParty).to receive(:delete).
+            with(
+                'http://host/test/1.json?q=1',
+                headers: Served::HTTPClient::HEADERS,
+                timeout: Served.config.timeout
+            ).and_return(true)
+        subject.delete('test', 1, {q: 1})
+      end
+    end
+
   end
 
   context Served::Backends::HTTP do
