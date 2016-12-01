@@ -139,5 +139,67 @@ describe Served::HTTPClient do
 
   end
 
+  context Served::Backends::Patron do
+
+    let(:session) { instance_double(Patron::Session) }
+
+    before :all do
+      Served.configure do |config|
+        config.backend = :patron
+      end
+
+    end
+
+    describe '#get' do
+
+      it 'calls the endpoint with the correct query and headers' do
+        expect(::Patron::Session).to receive(:new)
+                                       .with(headers: Served::HTTPClient::HEADERS, timeout: Served.config.timeout)
+        .and_return(session)
+        expect(session).to receive(:get).with('http://host/dir1/dir2/test/1.json?q=1')
+        subject.get(%w(dir1 dir2 test), 1, {q: 1})
+      end
+
+    end
+
+    describe '#post' do
+
+      it 'calls the endpoint with the correct query and headers' do
+        expect(::Patron::Session).to receive(:new)
+                                         .with(headers: Served::HTTPClient::HEADERS, timeout: Served.config.timeout)
+                                         .and_return(session)
+        expect(session).to receive(:post).with('http://host/test.json?q=1', {foo: :bar}.to_json)
+        subject.post('test', {foo: :bar}.to_json, {q: 1})
+      end
+
+    end
+
+    describe '#put' do
+
+      it 'calls the endpoint with the correct query and headers' do
+        expect(::Patron::Session).to receive(:new)
+                                         .with(headers: Served::HTTPClient::HEADERS, timeout: Served.config.timeout)
+                                         .and_return(session)
+        expect(session).to receive(:put).with('http://host/test/1.json?q=1', {foo: :bar}.to_json)
+        subject.put('test', 1, {foo: :bar}.to_json, {q: 1})
+      end
+
+    end
+
+
+    describe '#delete' do
+
+      it 'calls the endpoint with the correct query and headers' do
+        expect(::Patron::Session).to receive(:new)
+                                         .with(headers: Served::HTTPClient::HEADERS, timeout: Served.config.timeout)
+                                         .and_return(session)
+        expect(session).to receive(:delete).with('http://host/test/1.json?q=1')
+        subject.delete('test', 1, {q: 1})
+      end
+
+    end
+
+  end
+
 
 end
