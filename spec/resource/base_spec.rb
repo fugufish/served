@@ -214,26 +214,6 @@ describe Served::Resource::Base do
 
     end
 
-    # TODO: This feature potentially breaks backwards compatibility, will add in 0.2.0
-
-    # describe '#put' do
-    #   subject { klass.new(id: 1, attr1: 'foo') }
-    #   let(:response) { double('Response', body: { klass.resource_name.singularize => { id: 1, attr1: 1 } }, code: 200) }
-    #
-    #   it 'calls client.put passing the id, but without passing id in the body using the default serializer' do
-    #     expect(subject).to receive(:handle_response).with(response)
-    #     expect(klass.client).to receive(:put).
-    #       with(
-    #         klass.resource_name,
-    #         subject.id,
-    #         { klass.resource_name.singularize => {id: 1, attr1: 'foo', attr2: nil, attr3: nil}}.to_json,
-    #         {}
-    #       ).
-    #       and_return(response)
-    #     subject.send(:put)
-    #   end
-    # end
-
     describe '#handle_response' do
 
       it 'raises an error when code is not in the 200 range' do
