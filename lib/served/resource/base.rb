@@ -6,7 +6,8 @@ module Served
     # this namespace and what is in the configuration.
     class Base
       # raised when an attribute is passed to a resource that is not declared
-      class InvalidAttributeError < StandardError; end
+      class InvalidAttributeError < StandardError;
+      end
 
       # raised when the connection receives a response from a service that does not constitute a 200
       class ServiceError < StandardError
@@ -25,43 +26,75 @@ module Served
         #   class SomeResource
         #     attribute :attr1
         #   end
+        #
+        # @param name [Symbol] the name of the attribute
         def attribute(name, options={})
           return if attributes.include?(name)
           attributes[name] = options
           attr_accessor name
         end
 
+        # declare a set of attributes by name
+        #
+        # @example
+        #   class SomeResource
+        #     attributes :attr1, :attr2
+        #   end
+        #
+        # @param *attributes [Array] a list of attributes for the resource
         # @return [Hash] declared attributes for the resources
-        def attributes
+        def attributes(*args)
+          args.each { |a| attribute a } unless args.empty?
           @attributes ||= {}
         end
 
+        # Defines the default headers that should be used for the request.
+        #
+        # @param headers [Hash] the headers to send with each requesat
+        # @return headers [Hash] the default headers for the class
+        def headers(h={})
+          @headers = h unless h.empty?
+          @headers
+        end
+
         # Looks up a resource on the service by id. For example `SomeResource.find(5)` would call `/some_resources/5`
+        #
+        # @param id [Integer] the id of the resource
+        # @return [Resource::Base] the resource object.
         def find(id)
           instance = new(id: id)
           instance.reload
         end
 
+        # Get or set the resource name for the given resource used for endpoint generation
+        #
+        # @param resource [String] the name of the resource
         # @return [String] the name of the resource. `SomeResource.resource_name` will return `some_resources`
-        def resource_name
-          name.split('::').last.tableize
+        def resource_name(resource=nil)
+          @resource_name = resource if resource
+          @resource_name ||name.split('::').last.tableize
         end
 
+        # Get or set the host for the resource
+        #
+        # @param host [String] the resource host
         # @return [String] or [Hash] the configured host.
         # @see Services::Configuration
-        def host_config
-          Served.config[:hosts][parent.name.underscore.split('/')[-1]]
+        def host(h=nil)
+          @host = h if h
+          @host ||= Served.config[:hosts][parent.name.underscore.split('/')[-1]]
         end
 
+        # Get or set the timeout for the current resource
+        #
         # @return [Integer] allowed timeout in seconds
-        def timeout
-          Served.config.timeout
+        def timeout(sec=nil)
+          @timeout = sec if sec
+          @timeout || Served.config.timeout
         end
 
-        # @return [Served::HTTPClient] The connection instance to the service host. Note this is not an active
-        # connection but a passive one.
         def client
-          @connection ||= Served::HTTPClient.new(host_config, timeout)
+          @connection ||= Served::HTTPClient.new(host, timeout)
         end
 
         private
@@ -167,6 +200,7 @@ module Served
       def client
         self.class.client
       end
+
     end
   end
 end
