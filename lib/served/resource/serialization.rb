@@ -15,7 +15,7 @@ module Served
 
         def attribute(name, options={})
           super
-          serializer_for_attribute(name, options[:serialize_as]) if options[:serialize_as]
+          serializer_for_attribute(name, options[:serialize]) if options[:serialize]
         end
 
       end

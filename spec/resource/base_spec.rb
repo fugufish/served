@@ -302,7 +302,7 @@ describe Served::Resource::Base do
           module SomeModule
             # Test class
             class ResourceTest < Served::Resource::Base
-              attribute :attr, presence: true, serialize_as: Served::SomeModule::ResourceSub
+              attribute :attr, presence: true, serialize: Served::SomeModule::ResourceSub
             end
           end
         end
