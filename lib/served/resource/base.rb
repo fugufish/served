@@ -1,3 +1,5 @@
+require_relative 'validations'
+
 module Served
   module Resource
     # Service Resources should inherit directly from this class. Provides interfaces necessary for communicating with
@@ -5,6 +7,9 @@ module Served
     # name of the service the resource lives on. The resource determines the host of the service based on this
     # this namespace and what is in the configuration.
     class Base
+      include Validations
+
+
       # raised when an attribute is passed to a resource that is not declared
       class InvalidAttributeError < StandardError;
       end
@@ -32,6 +37,7 @@ module Served
           return if attributes.include?(name)
           attributes[name] = options
           attr_accessor name
+          set_validations_for_attribute(name, options)
         end
 
         # declare a set of attributes by name
@@ -107,6 +113,7 @@ module Served
             attribute :id
           end
         end
+
       end
 
       # Instantiates a resource with the given attributes.

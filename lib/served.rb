@@ -2,6 +2,7 @@ require 'httparty'
 require 'active_support/configurable'
 require 'active_support/core_ext/string'
 require 'active_support/core_ext/module'
+require 'active_model'
 
 require 'served/engine'
 require 'served/version'
