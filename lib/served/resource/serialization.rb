@@ -7,7 +7,8 @@ module Served
       SERIALIZERS = {
           Fixnum => {call: :to_i},
           String => {call: :to_s},
-          Symbol => {call: :to_sym}
+          Symbol => {call: :to_sym},
+          Float  => {call: :to_f}
       }
 
       included do
