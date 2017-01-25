@@ -11,6 +11,9 @@ module Served
     # Service Resources supports some ActiveModel validations so that a developer can include client side validations
     # if desired. Validation options can be passed to the #attribute class method using the same options as
     # ActiveModel#validate
+    #
+    # A resource may also serialize values as specific classes, including nested resources. If serialize is set to a
+    # Served Resource, it will validate the nested resource as well as the top level.
     class Base
       include Validations
       include Serialization
