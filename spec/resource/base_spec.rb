@@ -242,12 +242,22 @@ describe Served::Resource::Base do
           module SomeModule
             # Test class
             class ResourceTest < Served::Resource::Base
+              ALLOWED = %w{a b c d}
               attribute :attr1, presence: true
               attribute :attr2, numericality: true
               attribute :attr3, format: {with: /[a-z]+/}
+              attribute :attr4
 
               def presenter
                 {attr1: 1}
+              end
+
+
+              validates_each :attr4 do |record, _, value|
+                invalid = (value - ALLOWED)
+                unless invalid.empty?
+                  record.errors.add(:attr4, :invalid)
+                end
               end
             end
           end
@@ -271,6 +281,11 @@ describe Served::Resource::Base do
         k = klass.new(attr1: 1, attr2: 1, attr3: 1)
         expect(k.valid?).to be_falsey
         expect(k.errors[:attr3]).to_not be_blank
+      end
+
+      it 'validates with custom validator' do
+        k = klass.new(attr1: 1, attr2: 1, attr3: 'foo', attr4: [1, 'b', 'c'])
+        expect(k.valid?).to be_falsey
       end
 
       it 'passes all validations' do
@@ -318,6 +333,8 @@ describe Served::Resource::Base do
               attribute :attr, presence: true, serialize: Served::SomeModule::ResourceSub
               attribute :fixnum,               serialize: Fixnum
               attribute :thing,                serialize: Served::SomeModule::Thing
+              attribute :stuff
+
             end
           end
         end
