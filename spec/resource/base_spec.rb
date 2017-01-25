@@ -281,6 +281,47 @@ describe Served::Resource::Base do
         expect(k.errors[:attr3]).to be_blank
       end
 
+    end
+
+    describe 'serialization' do
+
+      let!(:subklass) {
+        module Served
+          module SomeModule
+            # Test class
+            class ResourceSub < Served::Resource::Base
+              attribute :sub_attr, presence: true
+            end
+          end
+        end
+        Served::SomeModule::ResourceSub
+      }
+
+      let(:klass) {
+        module Served
+          module SomeModule
+            # Test class
+            class ResourceTest < Served::Resource::Base
+              attribute :attr, presence: true, serialize_as: Served::SomeModule::ResourceSub
+            end
+          end
+        end
+        Served::SomeModule::ResourceTest
+      }
+
+      it 'validates the invalid sub class when validating' do
+        k = klass.new(attr: {})
+        expect(k.valid?).to be_falsey
+        expect(k.errors[:attr]).to_not be_empty
+      end
+
+      it 'validates the valid sub class when validating' do
+        k = klass.new(attr: { sub_attr: 'foo' })
+        expect(k.valid?).to be_truthy
+        expect(k.errors[:attr]).to be_empty
+      end
+
+
 
     end
 

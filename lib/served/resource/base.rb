@@ -1,4 +1,5 @@
 require_relative 'validations'
+require_relative 'serialization'
 
 module Served
   module Resource
@@ -6,9 +7,13 @@ module Served
     # services based on the namespace. Classes should be namespaced under Services::ServiceName where ServiceName is the
     # name of the service the resource lives on. The resource determines the host of the service based on this
     # this namespace and what is in the configuration.
+    #
+    # Service Resources supports some ActiveModel validations so that a developer can include client side validations
+    # if desired. Validation options can be passed to the #attribute class method using the same options as
+    # ActiveModel#validate
     class Base
       include Validations
-
+      include Serialization
 
       # raised when an attribute is passed to a resource that is not declared
       class InvalidAttributeError < StandardError;
@@ -149,18 +154,6 @@ module Served
       def reload
         reload_with_attributes(get)
         self
-      end
-
-      # renders the model as json
-      def to_json
-        raise InvalidPresenter, 'Presenter must respond to #to_json' unless presenter.respond_to? :to_json
-        presenter.to_json
-      end
-
-      # override this to return a presenter to be used for serialization, otherwise all attributes will be
-      # serialized
-      def presenter
-        { resource_name.singularize => attributes }
       end
 
       private
