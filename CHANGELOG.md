@@ -6,6 +6,8 @@
  * allow definition of individual attributes
  * add resource level `headers` option
  * add resource level `reasource_name` option
+ * add resource level `host` option, `host_config` will be deprecated in 0.2.0
+ * add `Served::Attribute::Base` class
 
 ## 0.1.10
 * make `timeout` configurable per resource
