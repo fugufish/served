@@ -3,6 +3,13 @@ module Served
     module Serialization
       extend ActiveSupport::Concern
 
+      # Specialized class serializers
+      SERIALIZERS = {
+          Fixnum => {call: :to_i},
+          String => {call: :to_s},
+          Symbol => {call: :to_sym}
+      }
+
       included do
         singleton_class.prepend PrependClassMethods
         prepend PrependInstanceMethods
@@ -23,7 +30,14 @@ module Served
       module PrependInstanceMethods
 
         def set_attribute(name, value)
-          value = self.class.attribute_serializers[name].new(value) if self.class.attribute_serializers[name]
+          if serializer = self.class.attribute_serializers[name]
+            if s = SERIALIZERS[serializer]
+              value = value.send(s[:call]) if s[:call] && value.respond_to?(:call)
+              value = s[:converter].call(value) if s[:converter]
+            else
+              value = serializer.new(value)
+            end
+          end
           super
         end
 
@@ -33,7 +47,7 @@ module Served
           super
           self.class.attribute_serializers.each_key do |attribute|
             attr = send(attribute)
-            errors.add(attribute, :invalid) unless attr.valid?
+            errors.add(attribute, :invalid) unless attr.respond_to?(:valid?) && attr.valid?
           end
           errors.empty?
         end

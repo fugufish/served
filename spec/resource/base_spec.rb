@@ -297,17 +297,34 @@ describe Served::Resource::Base do
         Served::SomeModule::ResourceSub
       }
 
+
+      let!(:thing) {
+        module Served
+          module SomeModule
+            class Thing
+              def initialize(options={})
+              end
+            end
+          end
+        end
+        Served::SomeModule::Thing
+      }
+
       let(:klass) {
         module Served
           module SomeModule
             # Test class
             class ResourceTest < Served::Resource::Base
               attribute :attr, presence: true, serialize: Served::SomeModule::ResourceSub
+              attribute :fixnum,               serialize: Fixnum
+              attribute :thing,                serialize: Served::SomeModule::Thing
             end
           end
         end
         Served::SomeModule::ResourceTest
       }
+
+
 
       it 'validates the invalid sub class when validating' do
         k = klass.new(attr: {})
@@ -321,7 +338,15 @@ describe Served::Resource::Base do
         expect(k.errors[:attr]).to be_empty
       end
 
+      it 'correctly serializes as a Fixnum' do
+        k = klass.new(fixnum: '1')
+        expect(k.fixnum).to be_a Fixnum
+      end
 
+      it 'serializes a value with the class provided to the :serialize option' do
+        k = klass.new(thing: 'thing')
+        expect(k.thing).to be_a thing
+      end
 
     end
 
