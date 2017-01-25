@@ -244,7 +244,7 @@ describe Served::Resource::Base do
             class ResourceTest < Served::Resource::Base
               attribute :attr1, presence: true
               attribute :attr2, numericality: true
-              attribute :attr3, format: { with: /[a-z]+/ }
+              attribute :attr3, format: {with: /[a-z]+/}
 
               def presenter
                 {attr1: 1}
@@ -255,7 +255,7 @@ describe Served::Resource::Base do
         Served::SomeModule::ResourceTest
       }
 
-      it  'validates presence' do
+      it 'validates presence' do
         k = klass.new(attr2: 1, attr3: 'foo')
         expect(k.valid?).to be_falsey
         expect(k.errors[:attr1]).to_not be_blank
@@ -271,6 +271,14 @@ describe Served::Resource::Base do
         k = klass.new(attr1: 1, attr2: 1, attr3: 1)
         expect(k.valid?).to be_falsey
         expect(k.errors[:attr3]).to_not be_blank
+      end
+
+      it 'passes all validations' do
+        k = klass.new(attr1: 1, attr2: 1, attr3: 'foo')
+        expect(k.valid?).to be_truthy
+        expect(k.errors[:attr1]).to be_blank
+        expect(k.errors[:attr2]).to be_blank
+        expect(k.errors[:attr3]).to be_blank
       end
 
 
