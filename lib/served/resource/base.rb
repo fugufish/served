@@ -89,6 +89,11 @@ module Served
           @resource_name ||name.split('::').last.tableize
         end
 
+        # @deprecated returns host information
+        def host_config
+          host
+        end
+
         # Get or set the host for the resource
         #
         # @param host [String] the resource host
@@ -108,7 +113,7 @@ module Served
         end
 
         def client
-          @connection ||= Served::HTTPClient.new(host, timeout)
+          @connection ||= Served::HTTPClient.new(host_config, timeout)
         end
 
         private
