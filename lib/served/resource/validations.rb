@@ -5,7 +5,13 @@ module Served
       extend ActiveSupport::Concern
 
       # Supported Validation Types
-      SUPPORTED_VALIDATIONS = [:presence, :numericality, :format]
+      SUPPORTED_VALIDATIONS = [
+          :presence,
+          :numericality,
+          :format,
+          :inclusion,
+          :confirmation
+      ]
 
       included do
         include ActiveModel::Validations
