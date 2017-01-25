@@ -32,7 +32,9 @@ module Served
 
         def set_attribute(name, value)
           if serializer = self.class.attribute_serializers[name]
-            if s = SERIALIZERS[serializer]
+          if serializer.is_a? Proc
+            value = serializer.call(value)
+          elsif s = SERIALIZERS[serializer]
               value = value.send(s[:call]) if s[:call] && value.respond_to?(:call)
               value = s[:converter].call(value) if s[:converter]
             else
