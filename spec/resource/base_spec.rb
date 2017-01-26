@@ -254,8 +254,8 @@ describe Served::Resource::Base do
 
 
               validates_each :attr4 do |record, _, value|
-                invalid = (value - ALLOWED)
-                unless invalid.empty?
+                invalid = (value - ALLOWED) if value
+                unless invalid.blank?
                   record.errors.add(:attr4, :invalid)
                 end
               end
@@ -304,7 +304,7 @@ describe Served::Resource::Base do
         module Served
           module SomeModule
             # Test class
-            class ResourceSub < Served::Resource::Base
+            class ResourceSub < Served::Attribute::Base
               attribute :sub_attr, presence: true
             end
           end

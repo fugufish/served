@@ -1,6 +1,3 @@
-require_relative 'validations'
-require_relative 'serialization'
-
 module Served
   module Resource
     # Service Resources should inherit directly from this class. Provides interfaces necessary for communicating with
@@ -15,8 +12,9 @@ module Served
     # A resource may also serialize values as specific classes, including nested resources. If serialize is set to a
     # Served Resource, it will validate the nested resource as well as the top level.
     class Base
-      include Validations
-      include Serialization
+      include Support::Attributable
+      include Support::Validatable
+      include Support::Serializable
 
       # raised when an attribute is passed to a resource that is not declared
       class InvalidAttributeError < StandardError;
@@ -33,34 +31,7 @@ module Served
       end
 
       class << self
-        # declare an attribute for the resource
-        #
-        # @example
-        #   class SomeResource
-        #     attribute :attr1
-        #   end
-        #
-        # @param name [Symbol] the name of the attribute
-        def attribute(name, options={})
-          return if attributes.include?(name)
-          attributes[name] = options
-          attr_accessor name
-          set_validations_for_attribute(name, options)
-        end
 
-        # declare a set of attributes by name
-        #
-        # @example
-        #   class SomeResource
-        #     attributes :attr1, :attr2
-        #   end
-        #
-        # @param *attributes [Array] a list of attributes for the resource
-        # @return [Hash] declared attributes for the resources
-        def attributes(*args)
-          args.each { |a| attribute a } unless args.empty?
-          @attributes ||= {}
-        end
 
         # Defines the default headers that should be used for the request.
         #
@@ -129,13 +100,6 @@ module Served
 
       end
 
-      # Instantiates a resource with the given attributes.
-      #
-      # @raise [InvalidAttributeError] in the case that an attribute is passed that is not declared
-      def initialize(attributes={})
-        reload_with_attributes(attributes)
-      end
-
       # @see Services::Resource::Base::resource_name
       def resource_name
         self.class.resource_name
@@ -186,24 +150,7 @@ module Served
       end
 
 
-      def reload_with_attributes(attributes)
-        attributes.each do |name, value|
-          set_attribute(name.to_sym, value)
-        end
-        set_attribute_defaults
-      end
 
-      def set_attribute_defaults
-        self.class.attributes.each do |attr, options|
-          next if options[:default].nil? || send(attr)
-          set_attribute(attr, options[:default])
-        end
-      end
-
-      def set_attribute(name, value)
-        raise InvalidAttributeError, "`#{name}' is not a valid attribute" unless self.class.attributes.include?(name)
-        instance_variable_set("@#{name}", value)
-      end
 
       def client
         self.class.client
