@@ -2,18 +2,20 @@ require 'addressable/template'
 module Served
   # Provides an interface between the HTTP client and the Resource.
   class HTTPClient
-     include Backends[Served.config.backend]
 
     HEADERS = { 'Content-type' => 'application/json', 'Accept' => 'application/json' }
     DEFAULT_TEMPLATE = '{/resource*}{/id}.json{?query*}'
+
+    attr_reader :template, :timeout
+
+    delegate :get, :put, :delete, :headers, :post, to: :@backend
 
     def initialize(host, timeout)
       host += DEFAULT_TEMPLATE unless host =~ /{.+}/
       @template = Addressable::Template.new(host)
       @timeout  = timeout
+      @backend  = Served::Backends[Served.config.backend].new(self)
     end
-
-    private
 
     def headers
       HEADERS

@@ -1,3 +1,4 @@
+require_relative 'backends/base'
 module Served
   module Backends
 
