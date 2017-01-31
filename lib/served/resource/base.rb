@@ -4,7 +4,18 @@ module Served
     # services based on the namespace. Classes should be namespaced under Services::ServiceName where ServiceName is the
     # name of the service the resource lives on. The resource determines the host of the service based on this
     # this namespace and what is in the configuration.
+    #
+    # Service Resources supports some ActiveModel validations so that a developer can include client side validations
+    # if desired. Validation options can be passed to the #attribute class method using the same options as
+    # ActiveModel#validate
+    #
+    # A resource may also serialize values as specific classes, including nested resources. If serialize is set to a
+    # Served Resource, it will validate the nested resource as well as the top level.
     class Base
+      include Support::Attributable
+      include Support::Validatable
+      include Support::Serializable
+
       # raised when an attribute is passed to a resource that is not declared
       class InvalidAttributeError < StandardError; end
 
@@ -19,33 +30,7 @@ module Served
       end
 
       class << self
-        # declare an attribute for the resource
-        #
-        # @example
-        #   class SomeResource
-        #     attribute :attr1
-        #   end
-        #
-        # @param name [Symbol] the name of the attribute
-        def attribute(name, options={})
-          return if attributes.include?(name)
-          attributes[name] = options
-          attr_accessor name
-        end
 
-        # declare a set of attributes by name
-        #
-        # @example
-        #   class SomeResource
-        #     attributes :attr1, :attr2
-        #   end
-        #
-        # @param *attributes [Array] a list of attributes for the resource
-        # @return [Hash] declared attributes for the resources
-        def attributes(*args)
-          args.each { |a| attribute a } unless args.empty?
-          @attributes ||= {}
-        end
 
         # Defines the default headers that should be used for the request.
         #
@@ -74,6 +59,11 @@ module Served
           @resource_name || name.split('::').last.tableize
         end
 
+        # @deprecated returns host information
+        def host_config
+          host
+        end
+
         # Get or set the host for the resource
         #
         # @param host [String] the resource host
@@ -93,7 +83,7 @@ module Served
         end
 
         def client
-          @connection ||= Served::HTTPClient.new(host, timeout)
+          @connection ||= Served::HTTPClient.new(host_config, timeout)
         end
 
         private
@@ -106,13 +96,7 @@ module Served
             attribute :id
           end
         end
-      end
 
-      # Instantiates a resource with the given attributes.
-      #
-      # @raise [InvalidAttributeError] in the case that an attribute is passed that is not declared
-      def initialize(attributes={})
-        reload_with_attributes(attributes)
       end
 
       # @see Services::Resource::Base::resource_name
@@ -143,18 +127,6 @@ module Served
         self
       end
 
-      # renders the model as json
-      def to_json
-        raise InvalidPresenter, 'Presenter must respond to #to_json' unless presenter.respond_to? :to_json
-        presenter.to_json
-      end
-
-      # override this to return a presenter to be used for serialization, otherwise all attributes will be
-      # serialized
-      def presenter
-        { resource_name.singularize => attributes }
-      end
-
       private
 
       def get(params={})
@@ -177,24 +149,7 @@ module Served
       end
 
 
-      def reload_with_attributes(attributes)
-        attributes.each do |name, value|
-          set_attribute(name.to_sym, value)
-        end
-        set_attribute_defaults
-      end
 
-      def set_attribute_defaults
-        self.class.attributes.each do |attr, options|
-          next if options[:default].nil? || send(attr)
-          set_attribute(attr, options[:default])
-        end
-      end
-
-      def set_attribute(name, value)
-        raise InvalidAttributeError, "`#{name}' is not a valid attribute" unless self.class.attributes.include?(name)
-        instance_variable_set("@#{name}", value)
-      end
 
       def client
         self.class.client
