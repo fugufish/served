@@ -3,12 +3,19 @@ module Served
     module Serializable
       extend ActiveSupport::Concern
 
+      # pseudo boolean class for serialization
+      class Boolean; end
+
       # Specialized class serializers
       SERIALIZERS = {
           Fixnum => {call: :to_i},
           String => {call: :to_s},
           Symbol => {call: :to_sym},
-          Float => {call: :to_f}
+          Float => {call: :to_f},
+          Boolean => { converter: -> (value) {
+            return false unless value == "true"
+            true
+          }}
       }
 
       included do
