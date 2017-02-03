@@ -149,9 +149,6 @@ module Served
         JSON.parse(response.body)
       end
 
-
-
-
       def client
         self.class.client
       end

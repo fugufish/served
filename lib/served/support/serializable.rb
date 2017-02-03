@@ -22,6 +22,7 @@ module Served
       module Prepend
 
         def set_attribute(name, value)
+          return unless self.class.attributes[name]
           if serializer = self.class.attributes[name][:serialize]
             if serializer.is_a? Proc
               value = serializer.call(value)

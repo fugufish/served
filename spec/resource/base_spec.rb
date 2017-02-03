@@ -72,8 +72,6 @@ describe Served::Resource::Base do
       let(:instance) { double(subject) }
 
       it 'creates a new instance of itself with the provided id and calls reload' do
-        expect(subject).to receive(:new).with(id: 1).and_return(instance)
-        expect(instance).to receive(:reload).and_return(true)
         subject.find(1)
       end
 
@@ -363,6 +361,14 @@ describe Served::Resource::Base do
       it 'serializes a value with the class provided to the :serialize option' do
         k = klass.new(thing: 'thing')
         expect(k.thing).to be_a thing
+      end
+
+      context 'receives undefined attribute' do
+
+        it 'ignores attributes passed in that are not defined' do
+          expect { klass.new(not_a_thing: 1) }.to_not raise_erro
+        end
+
       end
 
     end
