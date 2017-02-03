@@ -1,7 +1,7 @@
 # Changelog
 
 ## 0.1.11
- * add validation suppport
+ * add validation support
  * add serialization support
  * allow definition of individual attributes
  * add resource level `headers` option
