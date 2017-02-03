@@ -5,15 +5,16 @@ module Served
     HEADERS = { 'Content-type' => 'application/json', 'Accept' => 'application/json' }
     DEFAULT_TEMPLATE = '{/resource*}{/id}.json{?query*}'
 
-    def initialize(host, timeout)
+    def initialize(host, timeout, headers)
       host += DEFAULT_TEMPLATE unless host =~ /{.+}/
       @template = Addressable::Template.new(host)
       @timeout  = timeout
+      @headers = HEADERS.merge(headers)
     end
 
     def get(endpoint, id, params={})
       HTTParty.get(@template.expand(id: id, query: params, resource: endpoint).to_s,
-                   headers: HEADERS,
+                   headers: @headers,
                    timeout: @timeout
       )
     end
@@ -21,7 +22,7 @@ module Served
     def put(endpoint, id, body, params={})
       HTTParty.put(@template.expand(id: id, query: params, resource: endpoint).to_s,
         body:    body,
-        headers: HEADERS,
+        headers: @headers,
         timeout: @timeout
       )
     end
@@ -29,7 +30,7 @@ module Served
     def post(endpoint, body, params={})
       HTTParty.post(@template.expand(query: params, resource: endpoint).to_s,
         body:    body,
-        headers: HEADERS,
+        headers: @headers,
         timeout: @timeout
       )
     end

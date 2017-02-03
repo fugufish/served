@@ -84,7 +84,7 @@ module Served
         end
 
         def client
-          @connection ||= Served::HTTPClient.new(host_config, timeout)
+          @connection ||= Served::HTTPClient.new(host_config, timeout, headers)
         end
 
         private
