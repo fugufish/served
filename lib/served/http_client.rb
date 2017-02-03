@@ -5,11 +5,11 @@ module Served
     HEADERS = { 'Content-type' => 'application/json', 'Accept' => 'application/json' }
     DEFAULT_TEMPLATE = '{/resource*}{/id}.json{?query*}'
 
-    def initialize(host, timeout, headers)
+    def initialize(host, timeout, headers={})
       host += DEFAULT_TEMPLATE unless host =~ /{.+}/
       @template = Addressable::Template.new(host)
       @timeout  = timeout
-      @headers = HEADERS.merge(headers)
+      @headers = HEADERS.merge(headers || {})
     end
 
     def get(endpoint, id, params={})
