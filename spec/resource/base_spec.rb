@@ -341,8 +341,6 @@ describe Served::Resource::Base do
         Served::SomeModule::ResourceTest
       }
 
-
-
       it 'validates the invalid sub class when validating' do
         k = klass.new(attr: {})
         expect(k.valid?).to be_falsey
