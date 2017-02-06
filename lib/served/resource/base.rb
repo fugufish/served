@@ -60,11 +60,6 @@ module Served
           @resource_name || name.split('::').last.tableize
         end
 
-        # @deprecated returns host information
-        def host_config
-          host
-        end
-
         # Get or set the host for the resource
         #
         # @param host [String] the resource host
