@@ -7,10 +7,12 @@ module Served
 
     attr_reader :template, :timeout
 
-    delegate :get, :put, :delete, :post, :headers, to: :@backend
+    delegate :get, :put, :delete, :post, to: :@backend
+    delegate :headers,                   to: :@resource
 
-    def initialize(host, timeout, headers={})
+    def initialize(resource, host, timeout)
       host += DEFAULT_TEMPLATE unless host =~ /{.+}/
+      @resource = resource
       @template = Addressable::Template.new(host)
       @timeout  = timeout
       @backend  = Served::Backends[Served.config.backend].new(self)

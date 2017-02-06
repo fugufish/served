@@ -6,10 +6,13 @@ describe Served::HTTPClient do
     load File.expand_path('../../lib/served/http_client.rb', __FILE__)
   end
 
-  subject { Served::HTTPClient.new('http://host', Served.config.timeout) }
+
+  let(:resource) { Served::Resource::Base.new }
+
+  subject { Served::HTTPClient.new(resource, 'http://host', Served.config.timeout) }
 
   context 'with an addressable template' do
-    subject { Served::HTTPClient.new('http://host/{resource}.foo', Served.config.timeout) }
+    subject { Served::HTTPClient.new(resource, 'http://host/{resource}.foo', Served.config.timeout) }
 
 
     it 'does not use the default config template' do
@@ -32,7 +35,7 @@ describe Served::HTTPClient do
       it 'calls the endpoint with the correct query and headers' do
         expect(::HTTParty).to receive(:get)
                                   .with('http://host/dir1/dir2/test/1.json?q=1',
-                                        headers: Served::HTTPClient::HEADERS,
+                                        headers: Served::Support::Configurable::HEADERS,
                                         timeout: Served.config.timeout
                                   ).and_return(true)
         subject.get(%w(dir1 dir2 test), 1, {q: 1})
@@ -44,7 +47,7 @@ describe Served::HTTPClient do
         expect(::HTTParty).to receive(:post)
                                   .with('http://host/test.json?q=1',
                                         body: {foo: :bar}.to_json,
-                                        headers: Served::HTTPClient::HEADERS,
+                                        headers: Served::Support::Configurable::HEADERS,
                                         timeout: Served.config.timeout
                                   ).and_return(true)
         subject.post('test', {foo: :bar}.to_json, {q: 1})
@@ -57,7 +60,7 @@ describe Served::HTTPClient do
             with(
                 'http://host/test/1.json?q=1',
                 body: {foo: :bar}.to_json,
-                headers: Served::HTTPClient::HEADERS,
+                headers: Served::Support::Configurable::HEADERS,
                 timeout: Served.config.timeout
             ).and_return(true)
         subject.put('test', 1, {foo: :bar}.to_json, {q: 1})
@@ -69,7 +72,7 @@ describe Served::HTTPClient do
         expect(::HTTParty).to receive(:delete).
             with(
                 'http://host/test/1.json?q=1',
-                headers: Served::HTTPClient::HEADERS,
+                headers: Served::Support::Configurable::HEADERS,
                 timeout: Served.config.timeout
             ).and_return(true)
         subject.delete('test', 1, {q: 1})
@@ -80,7 +83,7 @@ describe Served::HTTPClient do
 
   context Served::Backends::HTTP do
     let(:http_chain_timeout) { ::HTTP.timeout(global: Served.config.timeout) }
-    let(:http_chain_headers) { ::HTTP.headers(Served::HTTPClient::HEADERS) }
+    let(:http_chain_headers) { ::HTTP.headers(Served::Support::Configurable::HEADERS) }
 
     before :all do
       Served.configure do |config|
@@ -154,7 +157,7 @@ describe Served::HTTPClient do
 
       it 'calls the endpoint with the correct query and headers' do
         expect(::Patron::Session).to receive(:new)
-                                       .with(headers: Served::HTTPClient::HEADERS, timeout: Served.config.timeout)
+                                       .with(headers: Served::Support::Configurable::HEADERS, timeout: Served.config.timeout)
         .and_return(session)
         expect(session).to receive(:get).with('http://host/dir1/dir2/test/1.json?q=1')
         subject.get(%w(dir1 dir2 test), 1, {q: 1})
@@ -166,7 +169,7 @@ describe Served::HTTPClient do
 
       it 'calls the endpoint with the correct query and headers' do
         expect(::Patron::Session).to receive(:new)
-                                         .with(headers: Served::HTTPClient::HEADERS, timeout: Served.config.timeout)
+                                         .with(headers: Served::Support::Configurable::HEADERS, timeout: Served.config.timeout)
                                          .and_return(session)
         expect(session).to receive(:post).with('http://host/test.json?q=1', {foo: :bar}.to_json)
         subject.post('test', {foo: :bar}.to_json, {q: 1})
@@ -178,7 +181,7 @@ describe Served::HTTPClient do
 
       it 'calls the endpoint with the correct query and headers' do
         expect(::Patron::Session).to receive(:new)
-                                         .with(headers: Served::HTTPClient::HEADERS, timeout: Served.config.timeout)
+                                         .with(headers: Served::Support::Configurable::HEADERS, timeout: Served.config.timeout)
                                          .and_return(session)
         expect(session).to receive(:put).with('http://host/test/1.json?q=1', {foo: :bar}.to_json)
         subject.put('test', 1, {foo: :bar}.to_json, {q: 1})
@@ -191,7 +194,7 @@ describe Served::HTTPClient do
 
       it 'calls the endpoint with the correct query and headers' do
         expect(::Patron::Session).to receive(:new)
-                                         .with(headers: Served::HTTPClient::HEADERS, timeout: Served.config.timeout)
+                                         .with(headers: Served::Support::Configurable::HEADERS, timeout: Served.config.timeout)
                                          .and_return(session)
         expect(session).to receive(:delete).with('http://host/test/1.json?q=1')
         subject.delete('test', 1, {q: 1})

@@ -42,7 +42,7 @@ module Served
         end
 
         def client
-          @connection ||= Served::HTTPClient.new(host, timeout, headers)
+          @connection ||= Served::HTTPClient.new(self, host, timeout)
         end
 
         private
@@ -78,6 +78,10 @@ module Served
 
       def attributes
         Hash[self.class.attributes.keys.collect { |name| [name, send(name)] }]
+      end
+
+      def headers
+        self.class.headers
       end
 
       # Reloads the resource using attributes from the service
