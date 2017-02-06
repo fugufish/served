@@ -6,6 +6,10 @@
 * new HTTP client backend functionality, ability to support multiple
   HTTP backends
 * `headers` updated to merge, can be called multiple times, allows modularization
+* backend support for `HTTParty`, `HTTP`, and `Patron`
+* `host_config` method removed from `Support::Resource::Base`
+* update travis to test against  Ruby 2.4.0, Ruby 2.1.9, Ruby 2.3.2
+* various refactoring
 
 ## 0.1.12
  * add validation support

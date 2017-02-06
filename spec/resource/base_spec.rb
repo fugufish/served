@@ -52,7 +52,7 @@ describe Served::Resource::Base do
       describe '::attributes' do
 
         it 'adds the attributes to the attribute list and creates an attr_accessor' do
-          %w{a b c}.each { |i|  expect(subject.attributes.include?(i.to_sym)).to be true }
+          %w{a b c}.each { |i| expect(subject.attributes.include?(i.to_sym)).to be true }
 
           expect(subject.new).to respond_to(:a)
           expect(subject.new).to respond_to(:b)
@@ -100,25 +100,27 @@ describe Served::Resource::Base do
         it 'sets the default JSON headers' do
           subject # avoids error preventing hash update during iteration
           Served::Support::Configurable::HEADERS.each do |k, v|
-            expect(subject.headers[k]). to eq v
+            expect(subject.headers[k]).to eq v
           end
         end
 
       end
     end
 
+    context 'resource model' do
+      describe '::find' do
 
-    describe '::find' do
+        let(:instance) { double(subject) }
 
-      let(:instance) { double(subject) }
+        it 'creates a new instance of itself with the provided id and calls reload' do
+          expect(subject).to receive(:new).with(id: 1).and_return(instance)
+          expect(instance).to receive(:reload).and_return(true)
+          subject.find(1)
+        end
 
-      it 'creates a new instance of itself with the provided id and calls reload' do
-        expect(subject).to receive(:new).with(id: 1).and_return(instance)
-        expect(instance).to receive(:reload).and_return(true)
-        subject.find(1)
       end
-
     end
+
 
   end
 

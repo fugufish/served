@@ -8,10 +8,10 @@ module Served
 
       # Specialized class serializers
       SERIALIZERS = {
-          Fixnum => {call: :to_i},
-          String => {call: :to_s},
-          Symbol => {call: :to_sym},
-          Float => {call: :to_f},
+          Fixnum =>  {call: :to_i},
+          String =>  {call: :to_s},
+          Symbol =>  {call: :to_sym},
+          Float =>   {call: :to_f},
           Boolean => { converter: -> (value) {
             return false unless value == "true"
             true
@@ -42,8 +42,7 @@ module Served
           end
           super
         end
-
-
+        
       end
 
       module ClassMethods
