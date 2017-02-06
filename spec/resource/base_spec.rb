@@ -23,49 +23,90 @@ describe Served::Resource::Base do
           class ResourceTest < Served::Resource::Base
             attribute :test
             attribute :test_with_default, default: 'test'
+            attributes :a, :b, :c
+
+            headers({foo: :bar})
+            headers({bar: :baz})
           end
         end
       end
       Served::SomeModule::ResourceTest
     }
 
-    describe '::attribute' do
+    context 'configuration' do
 
-      it 'adds the attribute to the attribute list and creates an attr_accessor' do
-        expect(subject.attributes.include?(:test)).to be true
-        expect(subject.new).to respond_to(:test)
-        expect(subject.new).to respond_to(:test=)
+      describe '::attribute' do
+
+        it 'adds the attribute to the attribute list and creates an attr_accessor' do
+          expect(subject.attributes.include?(:test)).to be true
+          expect(subject.new).to respond_to(:test)
+          expect(subject.new).to respond_to(:test=)
+        end
+
+        it 'sets the default value if the default option is present' do
+          expect(subject.new.test_with_default).to eq('test')
+        end
+
       end
 
-      it 'sets the default value if the default option is present' do
-        expect(subject.new.test_with_default).to eq('test')
+      describe '::attributes' do
+
+        it 'adds the attributes to the attribute list and creates an attr_accessor' do
+          %w{a b c}.each { |i|  expect(subject.attributes.include?(i.to_sym)).to be true }
+
+          expect(subject.new).to respond_to(:a)
+          expect(subject.new).to respond_to(:b)
+          expect(subject.new).to respond_to(:c)
+        end
+
       end
 
+      describe '::resource_name' do
+
+        it 'returns the tableized name of the class' do
+          expect(subject.resource_name).to eq 'resource_tests'
+        end
+
+      end
+
+      describe '::host' do
+
+        it 'returns the url for SomeModule host' do
+          expect(subject.host).to eq test_host
+        end
+
+      end
+
+      describe '::connection' do
+
+        it 'creates a new connection instance' do
+          expect(subject.client).to be_a(Served::HTTPClient)
+        end
+
+      end
+
+
+      describe '::headers' do
+
+        it 'sets the headers correctly' do
+          expect(subject.headers[:foo]).to eq :bar
+        end
+
+        it 'merges calls to headers to existing headers' do
+          expect(subject.headers[:foo]).to eq :bar
+          expect(subject.headers[:bar]).to eq :baz
+        end
+
+        it 'sets the default JSON headers' do
+          subject # avoids error preventing hash update during iteration
+          Served::Support::Configurable::HEADERS.each do |k, v|
+            expect(subject.headers[k]). to eq v
+          end
+        end
+
+      end
     end
 
-    describe '::resource_name' do
-
-      it 'returns the tableized name of the class' do
-        expect(subject.resource_name).to eq 'resource_tests'
-      end
-
-    end
-
-    describe '::host' do
-
-      it 'returns the url for SomeModule host' do
-        expect(subject.host).to eq test_host
-      end
-
-    end
-
-    describe '::connection' do
-
-      it 'creates a new connection instance' do
-        expect(subject.client).to be_a(Served::HTTPClient)
-      end
-
-    end
 
     describe '::find' do
 
@@ -189,7 +230,7 @@ describe Served::Resource::Base do
 
         subject { klass.new(id: 1, attr1: 1) }
 
-        let(:response) { { klass.resource_name.singularize => { id: 1, attr1: 1 } } }
+        let(:response) { {klass.resource_name.singularize => {id: 1, attr1: 1}} }
 
         it 'calls reload_with_attributes with the result of  post with the  current attributes' do
           expect(subject).to receive(:put).and_return(response)
@@ -204,7 +245,7 @@ describe Served::Resource::Base do
     describe '#get' do
 
       subject { klass.new(id: 1) }
-      let(:response) { double('Response', body: { klass.resource_name.singularize => { id: 1, attr1: 1 } }, code: 200) }
+      let(:response) { double('Response', body: {klass.resource_name.singularize => {id: 1, attr1: 1}}, code: 200) }
 
       it 'calls #handle_response with the result of the GET request' do
         expect(subject).to receive(:handle_response).with(response)
@@ -331,8 +372,8 @@ describe Served::Resource::Base do
             # Test class
             class ResourceTest < Served::Resource::Base
               attribute :attr, presence: true, serialize: Served::SomeModule::ResourceSub
-              attribute :fixnum,               serialize: Fixnum
-              attribute :thing,                serialize: Served::SomeModule::Thing
+              attribute :fixnum, serialize: Fixnum
+              attribute :thing, serialize: Served::SomeModule::Thing
               attribute :stuff
 
             end
@@ -348,7 +389,7 @@ describe Served::Resource::Base do
       end
 
       it 'validates the valid sub class when validating' do
-        k = klass.new(attr: { sub_attr: 'foo' })
+        k = klass.new(attr: {sub_attr: 'foo'})
         expect(k.valid?).to be_truthy
         expect(k.errors[:attr]).to be_empty
       end
@@ -381,5 +422,6 @@ describe Served::Resource::Base do
       end
 
     end
+
   end
 end
