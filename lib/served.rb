@@ -10,7 +10,6 @@ require 'served/version'
 require 'served/config'
 require 'served/backends'
 require 'served/http_client'
-require 'served/support'
 require 'served/resource'
 require 'served/attribute'
 

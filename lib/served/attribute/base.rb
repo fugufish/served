@@ -1,9 +1,9 @@
 module Served
   module Attribute
     class Base
-      include Support::Attributable
-      include Support::Serializable
-      include Support::Validatable
+      include Resource::Attributable
+      include Resource::Serializable
+      include Resource::Validatable
     end
   end
 end

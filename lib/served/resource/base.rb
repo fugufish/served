@@ -1,3 +1,8 @@
+require_relative 'attributable'
+require_relative 'serializable'
+require_relative 'validatable'
+require_relative 'configurable'
+
 module Served
   module Resource
     # Service Resources should inherit directly from this class. Provides interfaces necessary for communicating with
@@ -12,13 +17,10 @@ module Served
     # A resource may also serialize values as specific classes, including nested resources. If serialize is set to a
     # Served Resource, it will validate the nested resource as well as the top level.
     class Base
-      include Support::Configurable
-      include Support::Attributable
-      include Support::Validatable
-      include Support::Serializable
-
-      # raised when an attribute is passed to a resource that is not declared
-      class InvalidAttributeError < StandardError; end
+      include Configurable
+      include Attributable
+      include Validatable
+      include Serializable
 
       # raised when the connection receives a response from a service that does not constitute a 200
       class ServiceError < StandardError
@@ -41,8 +43,9 @@ module Served
           instance.reload
         end
 
+        # @return [Served::HTTPClient] the HTTPClient using the configured backend
         def client
-          @connection ||= Served::HTTPClient.new(self, host, timeout)
+          @client ||= Served::HTTPClient.new(self, host, timeout)
         end
 
         private
@@ -58,13 +61,10 @@ module Served
 
       end
 
-      # @see Services::Resource::Base::resource_name
-      def resource_name
-        self.class.resource_name
-      end
-
       # Saves the record to the service. Will call POST if the record does not have an id, otherwise will call PUT
       # to update the record
+      #
+      # @return [Boolean] returns true or false depending on save success
       def save
         if id
           reload_with_attributes(put[resource_name.singularize])
@@ -74,17 +74,9 @@ module Served
         true
       end
 
-      alias_method :save!, :save # TODO: differentiate save! and safe much the same AR does.
-
-      def attributes
-        Hash[self.class.attributes.keys.collect { |name| [name, send(name)] }]
-      end
-
-      def headers
-        self.class.headers
-      end
-
       # Reloads the resource using attributes from the service
+      #
+      # @return [self] self
       def reload
         reload_with_attributes(get)
         self

@@ -1,5 +1,5 @@
 module Served
-  module Support
+  module Resource
     # Resource validation functionality
     module Validatable
       extend ActiveSupport::Concern
@@ -13,6 +13,8 @@ module Served
           :confirmation
       ]
 
+      class ResourceInvalid < StandardError; end
+
       included do
         include ActiveModel::Validations
         singleton_class.prepend ClassMethods::Prepend
@@ -25,6 +27,7 @@ module Served
           return false unless valid?
           super
         end
+
 
 
         protected
@@ -41,6 +44,13 @@ module Served
       end
 
       module ClassMethods
+
+        # Saves a resource and raises an error if the save fails.
+        def self.save!
+          raise ResourceInvalid unless save
+          true
+        end
+
         module Prepend
 
           def attribute(name, options={})

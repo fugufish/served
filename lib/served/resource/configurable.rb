@@ -1,8 +1,9 @@
 module Served
-  module Support
+  module Resource
     module Configurable
       extend ActiveSupport::Concern
 
+      # Default headers for every request
       HEADERS = { 'Content-type' => 'application/json', 'Accept' => 'application/json' }
 
       module ClassMethods
@@ -39,12 +40,23 @@ module Served
         # @param headers [Hash] the headers to send with each requesat
         # @return headers [Hash] the default headers for the class
         def headers(h={})
-          @headers ||= Support::Configurable::HEADERS
+          @headers ||= Resource::Configurable::HEADERS
           @headers.merge!(h) unless h.empty?
           @headers
         end
         
       end
+
+      # @see Services::Resource::Base::resource_name
+      def resource_name
+        self.class.resource_name
+      end
+      
+      # @see Services::Resource::Base::headers
+      def headers
+        self.class.headers
+      end
+
     end
   end
 end

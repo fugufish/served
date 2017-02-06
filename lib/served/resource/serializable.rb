@@ -1,5 +1,5 @@
 module Served
-  module Support
+  module Resource
     module Serializable
       extend ActiveSupport::Concern
 

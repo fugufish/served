@@ -1,5 +1,5 @@
 module Served
-  module Support
+  module Resource
     module Attributable
       extend ActiveSupport::Concern
 
@@ -37,6 +37,11 @@ module Served
 
       def initialize(options={})
         reload_with_attributes(options)
+      end
+
+      # @return [Array] the keys for all the defined attributes
+      def attributes
+        Hash[self.class.attributes.keys.collect { |name| [name, send(name)] }]
       end
 
       private

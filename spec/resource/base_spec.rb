@@ -99,7 +99,7 @@ describe Served::Resource::Base do
 
         it 'sets the default JSON headers' do
           subject # avoids error preventing hash update during iteration
-          Served::Support::Configurable::HEADERS.each do |k, v|
+          Served::Resource::Configurable::HEADERS.each do |k, v|
             expect(subject.headers[k]).to eq v
           end
         end
