@@ -83,7 +83,7 @@ module Served
         end
 
         def client
-          @connection ||= Served::HTTPClient.new(host_config, timeout)
+          @connection ||= Served::HTTPClient.new(host_config, timeout, headers)
         end
 
         private
@@ -147,9 +147,6 @@ module Served
         raise ServiceError, response unless (200..299).include?(response.code)
         JSON.parse(response.body)
       end
-
-
-
 
       def client
         self.class.client

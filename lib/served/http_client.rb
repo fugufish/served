@@ -10,15 +10,12 @@ module Served
 
     delegate :get, :put, :delete, :headers, :post, to: :@backend
 
-    def initialize(host, timeout)
+    def initialize(host, timeout, headers={})
       host += DEFAULT_TEMPLATE unless host =~ /{.+}/
       @template = Addressable::Template.new(host)
       @timeout  = timeout
       @backend  = Served::Backends[Served.config.backend].new(self)
-    end
-
-    def headers
-      HEADERS
+      @headers = HEADERS.merge(headers || {})
     end
 
   end

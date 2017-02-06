@@ -365,6 +365,14 @@ describe Served::Resource::Base do
         expect(k.thing).to be_a thing
       end
 
+      context 'receives undefined attribute' do
+
+        it 'ignores attributes passed in that are not defined' do
+          expect { klass.new(not_a_thing: 1) }.to_not raise_error
+        end
+
+      end
+
     end
 
     describe '#handle_response' do
