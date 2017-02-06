@@ -6,9 +6,9 @@ module Served
     HEADERS = { 'Content-type' => 'application/json', 'Accept' => 'application/json' }
     DEFAULT_TEMPLATE = '{/resource*}{/id}.json{?query*}'
 
-    attr_reader :template, :timeout
+    attr_reader :template, :timeout, :headers
 
-    delegate :get, :put, :delete, :headers, :post, to: :@backend
+    delegate :get, :put, :delete, :post, to: :@backend
 
     def initialize(host, timeout, headers={})
       host += DEFAULT_TEMPLATE unless host =~ /{.+}/

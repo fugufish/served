@@ -5,6 +5,7 @@
 * use OJ for JSON serialization
 * new HTTP client backend functionality, ability to support multiple
   HTTP backends
+* `headers` updated to merge, can be called multiple times, allows modularization
 
 ## 0.1.12
  * add validation support

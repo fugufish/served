@@ -37,7 +37,8 @@ module Served
         # @param headers [Hash] the headers to send with each requesat
         # @return headers [Hash] the default headers for the class
         def headers(h={})
-          @headers = h unless h.empty?
+          @headers ||= {}
+          @headers.merge!(h) unless h.empty?
           @headers
         end
 
