@@ -13,3 +13,7 @@ require 'served/http_client'
 require 'served/resource'
 require 'served/attribute'
 
+
+module Served
+  include Config
+end
