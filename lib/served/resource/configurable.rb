@@ -6,52 +6,68 @@ module Served
       # Default headers for every request
       HEADERS = { 'Content-type' => 'application/json', 'Accept' => 'application/json' }
 
-      module ClassMethods
-        
-        # Get or set the resource name for the given resource used for endpoint generation
-        #
-        # @param resource [String] the name of the resource
-        # @return [String] the name of the resource. `SomeResource.resource_name` will return `some_resources`
-        def resource_name(resource=nil)
-          @resource_name = resource if resource
-          @resource_name || name.split('::').last.tableize
+      included do
+        icattr_accessor :resource_name do
+          name.split('::').last.tableize
         end
 
-        # Get or set the host for the resource
-        #
-        # @param host [String] the resource host
-        # @return [String] or [Hash] the configured host.
-        # @see Services::Configuration
-        def host(h=nil)
-          @host = h if h
-          @host ||= Served.config[:hosts][parent.name.underscore.split('/')[-1]]
+        icattr_accessor :host do
+          Served.config[:hosts][parent.name.underscore.split('/')[-1]]
         end
-        
-        # Get or set the timeout for the current resource
-        #
-        # @return [Integer] allowed timeout in seconds
-        def timeout(sec=nil)
-          @timeout = sec if sec
-          @timeout || Served.config.timeout
+
+        icattr_accessor :timeout do
+          Served.config.timeout
         end
-        
+
+        icattr_accessor :_headers do
+          Resource::Configurable::HEADERS
+        end
+
+      end
+
+      module ClassMethods
+
         # Defines the default headers that should be used for the request.
         #
         # @param headers [Hash] the headers to send with each requesat
         # @return headers [Hash] the default headers for the class
         def headers(h={})
-          @headers ||= Resource::Configurable::HEADERS
-          @headers.merge!(h) unless h.empty?
-          @headers
+          headers ||= _headers
+          _headers(headers.merge!(h)) unless h.empty?
+          _headers
         end
-        
+
+        private
+
+        def icattr_accessor(name, &block)
+          iattr_set(name, block.call) if block_given?
+          instance_eval <<-METHOD
+            def #{name}(v=nil)
+              iattr_set(:#{name}, v) if v
+              iattr_get(:#{name})
+            end
+          METHOD
+        end
+
+        def iattr_get(name)
+          _i_accessors[name] || superclass.send(:iattr_get, name) rescue nil
+        end
+
+        def iattr_set(name, value)
+          _i_accessors[name] = value
+        end
+
+        def _i_accessors
+          @_i_accessors ||= {}
+        end
+
       end
 
       # @see Services::Resource::Base::resource_name
       def resource_name
         self.class.resource_name
       end
-      
+
       # @see Services::Resource::Base::headers
       def headers
         self.class.headers

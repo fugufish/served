@@ -14,6 +14,4 @@ require 'served/resource'
 require 'served/attribute'
 
 
-module Served
-  include Config
-end
+

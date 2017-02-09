@@ -30,13 +30,13 @@ module Served
         # @return [Hash] declared attributes for the resources
         def attributes(*args)
           args.each { |a| attribute a } unless args.empty?
-          @attributes ||= {}
+          @attributes ||= (superclass.send(:attributes).clone rescue {})
         end
 
       end
 
       def initialize(options={})
-        reload_with_attributes(options)
+        reload_with_attributes(options.symbolize_keys)
       end
 
       # @return [Array] the keys for all the defined attributes
@@ -61,7 +61,6 @@ module Served
       end
 
       def set_attribute(name, value)
-        raise InvalidAttributeError, "`#{name}' is not a valid attribute" unless self.class.attributes.include?(name)
         instance_variable_set("@#{name}", value)
       end
 

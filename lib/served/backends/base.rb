@@ -7,6 +7,12 @@ module Served
         @client = client
       end
 
+      private
+
+      def serialize_respoinse(response)
+        response
+      end
+
     end
   end
 end

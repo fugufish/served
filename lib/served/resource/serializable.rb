@@ -10,7 +10,12 @@ module Served
       SERIALIZERS = {
           Fixnum =>  {call: :to_i},
           String =>  {call: :to_s},
-          Symbol =>  {call: :to_sym},
+          Symbol =>  {call: :to_sym, converter: -> (value) {
+            if value.is_a? Array
+              value = value.map { |a| a.to_sym }
+              return value
+            end
+          }},
           Float =>   {call: :to_f},
           Boolean => { converter: -> (value) {
             return false unless value == "true"
@@ -34,8 +39,12 @@ module Served
             if serializer.is_a? Proc
               value = serializer.call(value)
             elsif s = SERIALIZERS[serializer]
-              value = value.send(s[:call]) if s[:call] && value.respond_to?(s[:call])
-              value = s[:converter].call(value) if s[:converter]
+              called = false
+              if s[:call] && value.respond_to?(s[:call])
+                value = value.send(s[:call])
+                called = true
+              end
+              value = s[:converter].call(value) if s[:converter] && !called
             else
               value = serializer.new(value)
             end
