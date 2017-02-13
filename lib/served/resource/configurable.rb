@@ -23,6 +23,10 @@ module Served
           Resource::Configurable::HEADERS
         end
 
+        icattr_accessor :template do
+          '{/resource*}{/id}.json{?query*}'
+        end
+
       end
 
       module ClassMethods

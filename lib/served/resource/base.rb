@@ -45,7 +45,7 @@ module Served
 
         # @return [Served::HTTPClient] the HTTPClient using the configured backend
         def client
-          @client ||= Served::HTTPClient.new(self, host, timeout)
+          @client ||= Served::HTTPClient.new(self)
         end
 
         private

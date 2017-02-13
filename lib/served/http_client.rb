@@ -5,16 +5,15 @@ module Served
 
     DEFAULT_TEMPLATE = '{/resource*}{/id}.json{?query*}'
 
-    attr_reader :template, :timeout
+    attr_reader :template
 
-    delegate :get, :put, :delete, :post, to: :@backend
-    delegate :headers,                   to: :@resource
+    delegate :get, :put, :delete, :post,           to: :@backend
+    delegate :headers, :timeout, :host, to: :@resource
 
-    def initialize(resource, host, timeout)
-      host += DEFAULT_TEMPLATE unless host =~ /{.+}/
+    def initialize(resource)
       @resource = resource
-      @template = Addressable::Template.new(host)
-      @timeout  = timeout
+      h = host + @resource.template
+      @template = Addressable::Template.new(h)
       @backend  = Served::Backends[Served.config.backend].new(self)
     end
 

@@ -6,23 +6,30 @@ module Served
     class Patron < Base
 
       def get(endpoint, id, params={})
-        ::Patron::Session.new(headers: headers, timeout: timeout)
-            .get(template.expand(id: id, query: params, resource: endpoint).to_s)
+        serialize_response(::Patron::Session.new(headers: headers, timeout: timeout)
+            .get(template.expand(id: id, query: params, resource: endpoint).to_s))
       end
 
       def put(endpoint, id, body, params={})
-        ::Patron::Session.new(headers: headers, timeout: timeout)
-            .put(template.expand(id: id, query: params, resource: endpoint).to_s, body)
+        serialize_response(::Patron::Session.new(headers: headers, timeout: timeout)
+            .put(template.expand(id: id, query: params, resource: endpoint).to_s, body))
       end
 
       def post(endpoint, body, params={})
-        ::Patron::Session.new(headers: headers, timeout: timeout)
-            .post(template.expand(query: params, resource: endpoint).to_s, body)
+        serialize_response(::Patron::Session.new(headers: headers, timeout: timeout)
+            .post(template.expand(query: params, resource: endpoint).to_s, body))
       end
 
       def delete(endpoint, id, params={})
-        ::Patron::Session.new(headers: headers, timeout: timeout)
-            .delete(template.expand(id: id, query: params, resource: endpoint).to_s)
+        serialize_response(::Patron::Session.new(headers: headers, timeout: timeout)
+            .delete(template.expand(id: id, query: params, resource: endpoint).to_s))
+      end
+
+      def serialize_response(response)
+        OpenStruct.new({
+            body: response.body,
+            code: response.status
+                       })
       end
 
     end
