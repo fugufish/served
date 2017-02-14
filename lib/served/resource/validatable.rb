@@ -13,22 +13,32 @@ module Served
           :confirmation
       ]
 
-      class ResourceInvalid < StandardError; end
+      class ResourceInvalid < StandardError;
+      end
+
+      # Saves a resource and raises an error if the save fails.
+      def save!
+        raise ResourceInvalid unless save
+        true
+      end
 
       included do
         include ActiveModel::Validations
+        include Configurable
         singleton_class.prepend ClassMethods::Prepend
         prepend Prepend
+
+        icattr_accessor :validate_on_save do
+          true
+        end
       end
 
       module Prepend
 
         def save
-          return false unless valid?
+          return false unless self.class.validate_on_save && valid?
           super
         end
-
-
 
         protected
 
@@ -44,12 +54,6 @@ module Served
       end
 
       module ClassMethods
-
-        # Saves a resource and raises an error if the save fails.
-        def self.save!
-          raise ResourceInvalid unless save
-          true
-        end
 
         module Prepend
 

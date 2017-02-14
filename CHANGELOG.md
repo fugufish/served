@@ -10,6 +10,7 @@
 * `host_config` method removed from `Support::Resource::Base`
 * update travis to test against  Ruby 2.4.0, Ruby 2.1.9, Ruby 2.3.2
 * various refactoring
+* add `validation_on_save` option to allow skipping validation on save
 
 ## 0.1.12
  * add validation support
