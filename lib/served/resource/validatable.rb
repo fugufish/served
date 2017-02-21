@@ -22,6 +22,16 @@ module Served
         true
       end
 
+      # alias for valid
+      def validate
+        valid?
+      end
+
+      # like #save! except doesn't make any request
+      def validate!
+        raise ResourceInvalid unless valid?
+      end
+
       included do
         include ActiveModel::Validations
         include Configurable

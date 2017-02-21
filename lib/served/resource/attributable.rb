@@ -30,7 +30,8 @@ module Served
         # @return [Hash] declared attributes for the resources
         def attributes(*args)
           args.each { |a| attribute a } unless args.empty?
-          @attributes ||= (superclass.send(:attributes).clone rescue {})
+          # filter out validation attributes
+          @attributes ||= (superclass.send(:attributes).reject { |k,_| %W{errors validation_context}.include?(k) } rescue {})
         end
 
       end

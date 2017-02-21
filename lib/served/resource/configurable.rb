@@ -27,6 +27,10 @@ module Served
           '{/resource*}{/id}.json{?query*}'
         end
 
+        icattr_accessor :validate_on_save do
+          true
+        end
+
       end
 
       module ClassMethods

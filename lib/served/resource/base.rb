@@ -26,9 +26,11 @@ module Served
       class ServiceError < StandardError
         attr_reader :response
 
-        def initialize(response)
+        def initialize(resource, response)
           @response = response
-          super "An error occurred making the request: #{@response.code}"
+          error = JSON.parse(response.body)
+          super "Service #{resource.class.name} responded with an error: #{error['error']} -> #{error['exception']}"
+          set_backtrace(error['traces']['Full Trace'].collect {|e| e['trace']})
         end
       end
 
@@ -99,7 +101,7 @@ module Served
       end
 
       def handle_response(response)
-        raise ServiceError, response unless (200..299).include?(response.code)
+        raise ServiceError.new(self, response) unless (200..299).include?(response.code)
         JSON.parse(response.body)
       end
 

@@ -65,7 +65,7 @@ module Served
       end
 
       # renders the model as json
-      def to_json
+      def to_json(*args)
         raise InvalidPresenter, 'Presenter must respond to #to_json' unless presenter.respond_to? :to_json
         presenter.to_json
       end
