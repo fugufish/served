@@ -22,7 +22,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'activesupport', '>= 3.2'
   spec.add_dependency 'addressable',   '>= 2.4.0'
   spec.add_dependency 'activemodel', '>= 3.2'
-  spec.add_dependency 'oj'
 
   spec.add_development_dependency 'httparty', '~> 0.14.0'
   spec.add_development_dependency 'bundler',  '~> 1.10'
