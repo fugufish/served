@@ -13,23 +13,22 @@ module Served
           :confirmation
       ]
 
-      class ResourceInvalid < StandardError;
+      class ResourceInvalid < StandardError
+
+        def initialize(resource)
+          super "[#{resource.error.full_messages.join(', ')}]"
+        end
       end
 
       # Saves a resource and raises an error if the save fails.
       def save!
-        raise ResourceInvalid unless save
+        validate! && save(false)
         true
       end
 
       # alias for valid
       def validate
         valid?
-      end
-
-      # like #save! except doesn't make any request
-      def validate!
-        raise ResourceInvalid unless valid?
       end
 
       included do
@@ -45,9 +44,9 @@ module Served
 
       module Prepend
 
-        def save
-          return false unless self.class.validate_on_save && valid?
-          super
+        def save(with_validations=true)
+          return false if (with_validations && self.class.validate_on_save && !valid?)
+          super()
         end
 
         protected
