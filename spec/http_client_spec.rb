@@ -9,10 +9,10 @@ describe Served::HTTPClient do
 
   let(:resource) { Served::Resource::Base.new }
 
-  subject { Served::HTTPClient.new(resource, 'http://host', Served.config.timeout) }
+  subject { Served::HTTPClient.new(resource) }
 
   context 'with an addressable template' do
-    subject { Served::HTTPClient.new(resource, 'http://host/{resource}.foo', Served.config.timeout) }
+    subject { Served::HTTPClient.new(resource) }
 
 
     it 'does not use the default config template' do

@@ -22,6 +22,10 @@ module Served
       include Validatable
       include Serializable
 
+      # Default headers for every request
+      HEADERS = {'Content-type' => 'application/json', 'Accept' => 'application/json'}
+
+
       # raised when the connection receives a response from a service that does not constitute a 200
       class ServiceError < StandardError
         attr_reader :response
@@ -34,7 +38,37 @@ module Served
         end
       end
 
+      class_configurable :resource_name do
+        name.split('::').last.tableize
+      end
+
+      class_configurable :host do
+        Served.config[:hosts][parent.name.underscore.split('/')[-1]]
+      end
+
+      class_configurable :timeout do
+        Served.config.timeout
+      end
+
+      class_configurable :_headers do
+        Resource::Configurable::HEADERS
+      end
+
+      class_configurable :tempalte do
+        '{/resource*}{/id}.json{?query*}'
+      end
+
       class << self
+
+        # Defines the default headers that should be used for the request.
+        #
+        # @param headers [Hash] the headers to send with each requesat
+        # @return headers [Hash] the default headers for the class
+        def headers(h={})
+          headers ||= _headers
+          _headers(headers.merge!(h)) unless h.empty?
+          _headers
+        end
 
         # Looks up a resource on the service by id. For example `SomeResource.find(5)` would call `/some_resources/5`
         #

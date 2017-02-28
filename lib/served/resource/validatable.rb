@@ -37,9 +37,9 @@ module Served
         singleton_class.prepend ClassMethods::Prepend
         prepend Prepend
 
-        icattr_accessor :validate_on_save do
-          true
-        end
+        # icattr_accessor :validate_on_save do
+        #   true
+        # end
       end
 
       module Prepend
