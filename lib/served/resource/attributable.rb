@@ -3,6 +3,10 @@ module Served
     module Attributable
       extend ActiveSupport::Concern
 
+      included do
+        prepend Prepend
+      end
+
       module ClassMethods
 
         # declare an attribute for the resource
@@ -31,13 +35,23 @@ module Served
         def attributes(*args)
           args.each { |a| attribute a } unless args.empty?
           # filter out validation attributes
-          @attributes ||= (superclass.send(:attributes).reject { |k,_| %W{errors validation_context}.include?(k) } rescue {})
+           if !@attributes && superclass.respond_to?(:attributes)
+            @attributes ||= superclass.send(:attributes)
+           elsif !@attributes
+             @attributes ||= {}
+           end
+          @attributes
         end
 
       end
 
-      def initialize(options={})
-        reload_with_attributes(options.symbolize_keys)
+      module Prepend
+
+        def initialize(options={})
+          reload_with_attributes(options.symbolize_keys)
+          super
+        end
+
       end
 
       # @return [Array] the keys for all the defined attributes
@@ -66,7 +80,6 @@ module Served
       end
 
     end
-
 
   end
 end

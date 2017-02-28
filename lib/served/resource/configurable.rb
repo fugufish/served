@@ -3,7 +3,6 @@ module Served
     module Configurable
       extend ActiveSupport::Concern
 
-
       included do
         singleton_class.prepend ClassMethods::Prepend
       end
@@ -25,6 +24,8 @@ module Served
 
         private
 
+        # Declare a configurable attribute. This is used to declare the configuration methods used in
+        # Served::Resource::Base
         def class_configurable(name, options={}, &block)
           instance_eval do
             instance_variable_set(:"@_c_#{name}", options[:default]) if options[:default]
