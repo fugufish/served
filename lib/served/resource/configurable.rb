@@ -4,9 +4,10 @@ module Served
       extend ActiveSupport::Concern
 
       # Default headers for every request
-      HEADERS = { 'Content-type' => 'application/json', 'Accept' => 'application/json' }
+      HEADERS = {'Content-type' => 'application/json', 'Accept' => 'application/json'}
 
       included do
+        singleton_class.prepend ClassMethods::Prepend
         icattr_accessor :resource_name do
           name.split('::').last.tableize
         end
@@ -35,6 +36,20 @@ module Served
 
       module ClassMethods
 
+        module Prepend
+
+          private
+
+          def inherited(subclass)
+            # clone config variables
+            super
+            _i_accessors.each do |key, value|
+              subclass.send(:icattr_accessor, key, value)
+            end
+          end
+
+        end
+
         # Defines the default headers that should be used for the request.
         #
         # @param headers [Hash] the headers to send with each requesat
@@ -47,8 +62,9 @@ module Served
 
         private
 
-        def icattr_accessor(name, &block)
-          iattr_set(name, block.call) if block_given?
+        def icattr_accessor(name, default=nil, &block)
+          iattr_set(name, default) if default
+          iattr_set(name, block) if block_given?
           instance_eval <<-METHOD
             def #{name}(v=nil)
               iattr_set(:#{name}, v) if v
@@ -58,7 +74,9 @@ module Served
         end
 
         def iattr_get(name)
-          _i_accessors[name] || superclass.send(:iattr_get, name) rescue nil
+          value = _i_accessors[name]
+          value = instance_eval(&value) if value.is_a? Proc
+          value
         end
 
         def iattr_set(name, value)
@@ -73,6 +91,7 @@ module Served
 
       # @see Services::Resource::Base::resource_name
       def resource_name
+        puts "\n\n\n#{self.class} -> #{self.class.send(:_i_accessors)}"
         self.class.resource_name
       end
 
