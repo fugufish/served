@@ -51,10 +51,10 @@ module Served
       end
 
       class_configurable :_headers do
-        Resource::Configurable::HEADERS
+        HEADERS
       end
 
-      class_configurable :tempalte do
+      class_configurable :template do
         '{/resource*}{/id}.json{?query*}'
       end
 
@@ -95,6 +95,10 @@ module Served
           end
         end
 
+      end
+
+      def initialize(*args)
+        # placeholder
       end
 
       # Saves the record to the service. Will call POST if the record does not have an id, otherwise will call PUT

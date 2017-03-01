@@ -4,20 +4,23 @@ module Served
       extend ActiveSupport::Concern
 
       # pseudo boolean class for serialization
-      class Boolean; end
+      unless Object.const_defined?(:Boolean)
+        class ::Boolean;
+        end
+      end
 
       # Specialized class serializers
       SERIALIZERS = {
-          Fixnum =>  {call: :to_i},
-          String =>  {call: :to_s},
-          Symbol =>  {call: :to_sym, converter: -> (value) {
+          Fixnum => {call: :to_i},
+          String => {call: :to_s},
+          Symbol => {call: :to_sym, converter: -> (value) {
             if value.is_a? Array
               value = value.map { |a| a.to_sym }
               return value
             end
           }},
-          Float =>   {call: :to_f},
-          Boolean => { converter: -> (value) {
+          Float => {call: :to_f},
+          Boolean => {converter: -> (value) {
             return false unless value == "true"
             true
           }}
@@ -51,7 +54,7 @@ module Served
           end
           super
         end
-        
+
       end
 
       module ClassMethods
@@ -73,7 +76,7 @@ module Served
       # override this to return a presenter to be used for serialization, otherwise all attributes will be
       # serialized
       def presenter
-        {resource_name.singularize => attributes}
+        attributes
       end
 
     end
