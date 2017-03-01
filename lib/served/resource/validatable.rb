@@ -10,7 +10,6 @@ module Served
           :numericality,
           :format,
           :inclusion,
-          :confirmation
       ]
 
       class ResourceInvalid < StandardError
@@ -34,12 +33,13 @@ module Served
       included do
         include ActiveModel::Validations
         include Configurable
+        include Attributable
         singleton_class.prepend ClassMethods::Prepend
         prepend Prepend
 
-        # icattr_accessor :validate_on_save do
-        #   true
-        # end
+        class_configurable :validate_on_save do
+          true
+        end
       end
 
       module Prepend
