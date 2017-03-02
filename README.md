@@ -11,6 +11,7 @@ Add the following to your Gemfile:
 
 ```gem 'served'```
 
+Served supports Ruby versions `>= 2.1` and versions of Rails `>= 3.2`, including Rails 5.
 # Configuration
 Served is configured by passing a block to ```Served::configure```.
 
