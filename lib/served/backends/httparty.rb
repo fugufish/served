@@ -9,6 +9,8 @@ module Served
                        headers: headers,
                        timeout: timeout
         )
+      rescue Errno::ECONNREFUSED
+        raise Served::HTTPClient::ConnectionFailed.new(resource)
       end
 
       def put(endpoint, id, body, params={})
@@ -17,6 +19,8 @@ module Served
                        headers: headers,
                        timeout: timeout
         )
+      rescue Errno::ECONNREFUSED
+        raise Served::HTTPClient::ConnectionFailed.new(resource)
       end
 
       def post(endpoint, body, params={})
@@ -25,6 +29,8 @@ module Served
                         headers: headers,
                         timeout: timeout
         )
+      rescue Errno::ECONNREFUSED
+        raise Served::HTTPClient::ConnectionFailed.new(resource)
       end
 
       def delete(endpoint, id, params={})
@@ -32,6 +38,8 @@ module Served
                           headers: headers,
                           timeout: timeout
         )
+      rescue Errno::ECONNREFUSED
+        raise Served::HTTPClient::ConnectionFailed.new(resource)
       end
 
     end

@@ -11,6 +11,8 @@
 * various refactoring
 * add `validation_on_save` option to allow skipping validation on save
 * better configuration inheritance in resources
+* if using HTTParty as a backend `Errno::ECONNREFUSED` will no longer be returned for connection errors, 
+`Served::HTTPClient::ConnectionFailed` will be raised instead
 
 ## 0.1.12
  * add validation support
