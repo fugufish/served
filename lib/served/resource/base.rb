@@ -22,6 +22,8 @@ module Served
       include Validatable
       include Serializable
 
+      attribute :id
+
       # Default headers for every request
       HEADERS = {'Content-type' => 'application/json', 'Accept' => 'application/json'}
 
@@ -43,7 +45,7 @@ module Served
       end
 
       class_configurable :host do
-        Served.config[:hosts][parent.name.underscore.split('/')[-1]]
+        Served.config[:hosts][parent.name.underscore.split('/')[-1]] || Served.config[:hosts][:default]
       end
 
       class_configurable :timeout do
@@ -82,17 +84,6 @@ module Served
         # @return [Served::HTTPClient] the HTTPClient using the configured backend
         def client
           @client ||= Served::HTTPClient.new(self)
-        end
-
-        private
-
-        # Everything should allow an id attribute
-        def inherited(subclass)
-          return if subclass.attributes.include?(:id) # attribute method does this already, but rather not do a
-          # class_eval if not necessary
-          subclass.class_eval do
-            attribute :id
-          end
         end
 
       end
@@ -145,6 +136,10 @@ module Served
 
       def client
         self.class.client
+      end
+
+      def presenter
+        {resource_name.singularize.to_sym => attributes}
       end
 
     end

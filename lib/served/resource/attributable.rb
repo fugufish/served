@@ -5,6 +5,7 @@ module Served
 
       included do
         prepend Prepend
+        singleton_class.prepend ClassMethods::Prepend
       end
 
       module ClassMethods
@@ -34,13 +35,18 @@ module Served
         # @return [Hash] declared attributes for the resources
         def attributes(*args)
           args.each { |a| attribute a } unless args.empty?
-          # filter out validation attributes
-           if !@attributes && superclass.respond_to?(:attributes)
-            @attributes ||= superclass.send(:attributes)
-           elsif !@attributes
-             @attributes ||= {}
-           end
-          @attributes
+          @attributes ||= {}
+        end
+
+        module Prepend
+
+          def inherited(subclass)
+            self.attributes.each do |name, options|
+              subclass.attribute name, options
+            end
+            super
+          end
+
         end
 
       end
