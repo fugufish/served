@@ -10,6 +10,8 @@ module Served
             .headers(headers)
             .get(template.expand(id: id, query: params, resource: endpoint).to_s)
         serialize_response(response)
+      rescue ::HTTP::ConnectionError
+        raise Served::HTTPClient::ConnectionFailed.new(resource)
       end
 
       def put(endpoint, id, body, params={})
@@ -18,6 +20,8 @@ module Served
             .headers(headers)
             .put(template.expand(id: id, query: params, resource: endpoint).to_s, body: body)
         serialize_response(response)
+      rescue ::HTTP::ConnectionError
+        raise Served::HTTPClient::ConnectionFailed.new(resource)
       end
 
       def post(endpoint, body, params={})
@@ -26,6 +30,8 @@ module Served
             .headers(headers)
             .post(template.expand(query: params, resource: endpoint).to_s, body: body)
         serialize_response(response)
+      rescue ::HTTP::ConnectionError
+        raise Served::HTTPClient::ConnectionFailed.new(resource)
       end
 
       def delete(endpoint, id, params={})
@@ -34,6 +40,8 @@ module Served
             .headers(headers)
             .delete(template.expand(query: params, resource: endpoint, id: id).to_s)
         serialize_response(response)
+      rescue ::HTTP::ConnectionError
+        raise Served::HTTPClient::ConnectionFailed.new(resource)
       end
 
     end
