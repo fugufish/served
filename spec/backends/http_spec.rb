@@ -1,5 +1,5 @@
 require 'spec_helper'
-describe Served::Backends::Patron do
+describe Served::Backends::HTTP do
   let(:resource) {
     Class.new(Served::Resource::Base) do
     end
@@ -98,7 +98,7 @@ describe Served::Backends::Patron do
       it 'raises Served::HTTPClient::ConnecitonFailed when a connection failure occurs' do
         expect(::HTTP).to receive(:timeout).with({global: resource.timeout}).and_return(http_instance)
         expect(http_instance).to receive(:headers).with(resource.headers).and_return(http_instance)
-        expect(http_instance).to receive(:post).and_raise(::HTTP::ConnectionError)
+        expect(http_instance).to receive(:delete).and_raise(::HTTP::ConnectionError)
         expect { subject.delete(endpoint, id, params) }.to raise_error(Served::HTTPClient::ConnectionFailed)
       end
 
