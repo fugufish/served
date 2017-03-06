@@ -1,5 +1,5 @@
 # Served
-[![Build Status](https://travis-ci.org/optoro/served.svg)](https://travis-ci.org/optoro/served)
+[![Build Status](https://travis-ci.org/optoro/served.svg?branch=master)](https://travis-ci.org/optoro/served)
 [![Gem Version](https://badge.fury.io/rb/served.svg)](https://badge.fury.io/rb/served)
 
 Served is a gem in the vein of [ActiveResource](https://github.com/rails/activeresource) designed to facilitate

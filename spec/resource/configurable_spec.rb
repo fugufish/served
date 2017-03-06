@@ -23,18 +23,19 @@ describe Served::Resource::Configurable do
     expect(subject.foo).to eq 'bar'
   end
 
-  it 'calls a proc if it is passed as defaut' do
-    subject.send(:class_configurable, :foo, default: -> {'baz'})
+  it 'calls a proc if it is passed as default' do
+    subject.send(:class_configurable, :foo, default: Proc.new {'baz'})
+    subject.foo
     expect(subject.foo).to eq 'baz'
   end
 
   it 'calls the block if passed' do
-    subject.send(:class_configurable, :foo, &-> { 'baz'})
+    subject.send(:class_configurable, :foo, &Proc.new { 'baz'})
     expect(subject.foo).to eq 'baz'
   end
 
   it 'defines an accessible instance method' do
-    subject.send(:class_configurable, :foo, &-> { 'baz'})
+    subject.send(:class_configurable, :foo, &Proc.new { 'baz'})
     expect(subject.new.foo).to eq 'baz'
   end
 
