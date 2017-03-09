@@ -16,7 +16,9 @@ module Served
           def inherited(subclass)
             super
             instance_variables.each do |v|
-              subclass.send(:instance_variable_set, v, instance_variable_get(v).clone) if /@_c_/ =~ v
+              instance = instance_variable_get(v)
+              instance = instance.clone unless instance.is_a? Fixnum
+              subclass.send(:instance_variable_set, v, instance) if /@_c_/ =~ v
             end
           end
 

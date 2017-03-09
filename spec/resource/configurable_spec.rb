@@ -45,11 +45,18 @@ describe Served::Resource::Configurable do
       Class.new do
         include Served::Resource::Configurable
         class_configurable :foo, default: 'bar'
+        class_configurable :fixnum do
+          5
+        end
       end
     end
 
     subject do
       Class.new(parent)
+    end
+
+    it 'should not blow up on a fixnum' do
+      expect { subject.fixnum }.to_not raise_exception
     end
 
     it "should inherit the parent's default" do
