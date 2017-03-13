@@ -55,7 +55,7 @@ module Served
 
         def initialize(options={})
           reload_with_attributes(options.symbolize_keys)
-          super
+          super options
         end
 
       end

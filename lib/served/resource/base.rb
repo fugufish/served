@@ -88,7 +88,7 @@ module Served
 
       end
 
-      def initialize(*args)
+      def initialize(options={})
         # placeholder
       end
 

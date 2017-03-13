@@ -4,6 +4,10 @@ module Served
       include Resource::Attributable
       include Resource::Serializable
       include Resource::Validatable
+
+      def initialize(*args)
+        # placeholder
+      end
     end
   end
 end
