@@ -34,7 +34,12 @@ module Served
 
         def initialize(resource, response)
           @response = response
-          error = JSON.parse(response.body)
+          begin
+            error = JSON.parse(response.body)
+          rescue JSON::ParserError
+            super "Service #{resource.class.name} experienced an error and sent back an invalid error response"
+            return
+          end
           super "Service #{resource.class.name} responded with an error: #{error['error']} -> #{error['exception']}"
           set_backtrace(error['traces']['Full Trace'].collect {|e| e['trace']})
         end

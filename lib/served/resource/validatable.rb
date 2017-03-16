@@ -21,13 +21,8 @@ module Served
 
       # Saves a resource and raises an error if the save fails.
       def save!
-        validate! && save(false)
+        run_validations! && save(false)
         true
-      end
-
-      # alias for valid
-      def validate
-        valid?
       end
 
       included do

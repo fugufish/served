@@ -7,8 +7,8 @@ module Served
 
     attr_reader :template, :resource
 
-    delegate :get, :put, :delete, :post,           to: :@backend
-    delegate :headers, :timeout, :host, to: :@resource
+    delegate :get, :put, :delete, :post, to: :@backend
+    delegate :headers, :timeout, :host,  to: :@resource
 
     class ConnectionFailed < StandardError
 
