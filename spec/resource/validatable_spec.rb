@@ -21,37 +21,37 @@ describe Served::Resource::Validatable do
 
     it 'should validate presence' do
       instance = subject.new(presence: 'foo')
-      instance.validate
+      instance.valid?
       expect(instance.errors[:presence]).to be_empty
       instance = subject.new
-      instance.validate
+      instance.valid?
       expect(instance.errors[:presence]).to_not be_empty
     end
 
     it 'should validate numericality' do
       instance = subject.new(numericality: '1')
-      instance.validate
+      instance.valid?
       expect(instance.errors[:numericality]).to be_empty
       instance = subject.new(numericality: 'a')
-      instance.validate
+      instance.valid?
       expect(instance.errors[:numericality]).to_not be_empty
     end
 
     it 'should validate format' do
       instance = subject.new(format: 'abcd')
-      instance.validate
+      instance.valid?
       expect(instance.errors[:format]).to be_empty
       instance = subject.new(format: '1234')
-      instance.validate
+      instance.valid?
       expect(instance.errors[:format]).to_not be_empty
     end
 
     it 'should validate inclusion' do
       instance = subject.new(inclusion: 'foo')
-      instance.validate
+      instance.valid?
       expect(instance.errors[:inclusion]).to be_empty
       instance = subject.new(inclusion: 'a')
-      instance.validate
+      instance.valid?
       expect(instance.errors[:inclusion]).to_not be_empty
     end
 
