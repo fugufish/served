@@ -15,7 +15,7 @@ module Served
       class ResourceInvalid < StandardError
 
         def initialize(resource)
-          super "[#{resource.error.full_messages.join(', ')}]"
+          super "[#{resource.errors.full_messages.join(', ')}]"
         end
       end
 
