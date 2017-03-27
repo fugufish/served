@@ -1,5 +1,5 @@
 # Served
-[![Build Status](https://travis-ci.org/optoro/served.svg)](https://travis-ci.org/optoro/served)
+[![Build Status](https://travis-ci.org/optoro/served.svg?branch=master)](https://travis-ci.org/optoro/served)
 [![Gem Version](https://badge.fury.io/rb/served.svg)](https://badge.fury.io/rb/served)
 
 Served is a gem in the vein of [ActiveResource](https://github.com/rails/activeresource) designed to facilitate
@@ -11,6 +11,7 @@ Add the following to your Gemfile:
 
 ```gem 'served'```
 
+Served supports Ruby versions `>= 2.1` and versions of Rails `>= 3.2`, including Rails 5.
 # Configuration
 Served is configured by passing a block to ```Served::configure```.
 
@@ -21,6 +22,8 @@ Served.configure do |config|
    }
    
    config.timeout = 100
+   
+   config.backend = :patron
 end
 ```
 
@@ -43,6 +46,10 @@ maintained for backwards compatibility, however the extension will likely be rem
 ## Timeout
 Sets the request timeout in milliseconds.
 
+## Backend
+Configure the HTTP client backend. Supports either :http (default), which will use the HTTP client, or :patron, which 
+will use Patron. Patron is suggested for use if high concurrency between requests is required. Also requires the 
+machine to have libcurl.
 
 # Defining a Resource
 A service model can be created by declaring a class inheriting from ```Service::Resource::Base```.

@@ -19,12 +19,15 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  spec.add_dependency 'httparty'
   spec.add_dependency 'activesupport', '>= 3.2'
   spec.add_dependency 'addressable',   '>= 2.4.0'
   spec.add_dependency 'activemodel', '>= 3.2'
 
-  spec.add_development_dependency 'bundler', '~> 1.10'
-  spec.add_development_dependency 'rake', '~> 10.0'
-  spec.add_development_dependency 'rspec'
+  spec.add_development_dependency 'httparty', '~> 0.14.0'
+  spec.add_development_dependency 'bundler',  '~> 1.10'
+  spec.add_development_dependency 'rake',     '~> 10.0'
+  spec.add_development_dependency 'rspec',    '~> 3.4.0'
+  spec.add_development_dependency 'http',     '~> 1.0.4'
+  spec.add_development_dependency 'patron',   '~> 0.5.0'
+
 end

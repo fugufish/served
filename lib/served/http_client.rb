@@ -1,38 +1,29 @@
 require 'addressable/template'
 module Served
-  # Provides an interface between HTTParty and the models. Most of the crap in here is self explanatory
+  # Provides an interface between the HTTP client and the Resource.
   class HTTPClient
-    HEADERS = { 'Content-type' => 'application/json', 'Accept' => 'application/json' }
+
     DEFAULT_TEMPLATE = '{/resource*}{/id}.json{?query*}'
 
-    def initialize(host, timeout, headers={})
-      host += DEFAULT_TEMPLATE unless host =~ /{.+}/
-      @template = Addressable::Template.new(host)
-      @timeout  = timeout
-      @headers = HEADERS.merge(headers || {})
+    attr_reader :template, :resource
+
+    delegate :get, :put, :delete, :post, to: :@backend
+    delegate :headers, :timeout, :host,  to: :@resource
+
+    class ConnectionFailed < StandardError
+
+        def initialize(resource)
+          super "Resource #{resource.name} could not be reached on #{resource.host}"
+        end
+
+      end
+
+    def initialize(resource)
+      @resource = resource
+      h = host + @resource.template
+      @template = Addressable::Template.new(h)
+      @backend  = Served::Backends[Served.config.backend].new(self)
     end
 
-    def get(endpoint, id, params={})
-      HTTParty.get(@template.expand(id: id, query: params, resource: endpoint).to_s,
-                   headers: @headers,
-                   timeout: @timeout
-      )
-    end
-
-    def put(endpoint, id, body, params={})
-      HTTParty.put(@template.expand(id: id, query: params, resource: endpoint).to_s,
-        body:    body,
-        headers: @headers,
-        timeout: @timeout
-      )
-    end
-
-    def post(endpoint, body, params={})
-      HTTParty.post(@template.expand(query: params, resource: endpoint).to_s,
-        body:    body,
-        headers: @headers,
-        timeout: @timeout
-      )
-    end
   end
 end

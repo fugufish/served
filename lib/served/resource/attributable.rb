@@ -1,7 +1,12 @@
 module Served
-  module Support
+  module Resource
     module Attributable
       extend ActiveSupport::Concern
+
+      included do
+        prepend Prepend
+        singleton_class.prepend ClassMethods::Prepend
+      end
 
       module ClassMethods
 
@@ -33,10 +38,31 @@ module Served
           @attributes ||= {}
         end
 
+        module Prepend
+
+          def inherited(subclass)
+            self.attributes.each do |name, options|
+              subclass.attribute name, options
+            end
+            super
+          end
+
+        end
+
       end
 
-      def initialize(options={})
-        reload_with_attributes(options)
+      module Prepend
+
+        def initialize(options={})
+          reload_with_attributes(options.symbolize_keys)
+          super options
+        end
+
+      end
+
+      # @return [Array] the keys for all the defined attributes
+      def attributes
+        Hash[self.class.attributes.keys.collect { |name| [name, send(name)] }]
       end
 
       private
@@ -56,12 +82,10 @@ module Served
       end
 
       def set_attribute(name, value)
-        raise InvalidAttributeError, "`#{name}' is not a valid attribute" unless self.class.attributes.include?(name)
         instance_variable_set("@#{name}", value)
       end
 
     end
-
 
   end
 end

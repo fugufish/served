@@ -1,3 +1,8 @@
+require_relative 'attributable'
+require_relative 'serializable'
+require_relative 'validatable'
+require_relative 'configurable'
+
 module Served
   module Resource
     # Service Resources should inherit directly from this class. Provides interfaces necessary for communicating with
@@ -12,34 +17,64 @@ module Served
     # A resource may also serialize values as specific classes, including nested resources. If serialize is set to a
     # Served Resource, it will validate the nested resource as well as the top level.
     class Base
-      include Support::Attributable
-      include Support::Validatable
-      include Support::Serializable
+      include Configurable
+      include Attributable
+      include Validatable
+      include Serializable
 
-      # raised when an attribute is passed to a resource that is not declared
-      class InvalidAttributeError < StandardError;
-      end
+      attribute :id
+
+      # Default headers for every request
+      HEADERS = {'Content-type' => 'application/json', 'Accept' => 'application/json'}
+
 
       # raised when the connection receives a response from a service that does not constitute a 200
       class ServiceError < StandardError
         attr_reader :response
 
-        def initialize(response)
+        def initialize(resource, response)
           @response = response
-          super "An error occurred making the request: #{@response.code}"
+          begin
+            error = JSON.parse(response.body)
+          rescue JSON::ParserError
+            super "Service #{resource.class.name} experienced an error and sent back an invalid error response"
+            return
+          end
+          super "Service #{resource.class.name} responded with an error: #{error['error']} -> #{error['exception']}"
+          set_backtrace(error['traces']['Full Trace'].collect {|e| e['trace']})
         end
       end
 
-      class << self
+      class_configurable :resource_name do
+        name.split('::').last.tableize
+      end
 
+      class_configurable :host do
+        Served.config[:hosts][parent.name.underscore.split('/')[-1]] || Served.config[:hosts][:default]
+      end
+
+      class_configurable :timeout do
+        Served.config.timeout
+      end
+
+      class_configurable :_headers do
+        HEADERS
+      end
+
+      class_configurable :template do
+        '{/resource*}{/id}.json{?query*}'
+      end
+
+      class << self
 
         # Defines the default headers that should be used for the request.
         #
         # @param headers [Hash] the headers to send with each requesat
         # @return headers [Hash] the default headers for the class
         def headers(h={})
-          @headers = h unless h.empty?
-          @headers
+          headers ||= _headers
+          _headers(headers.merge!(h)) unless h.empty?
+          _headers
         end
 
         # Looks up a resource on the service by id. For example `SomeResource.find(5)` would call `/some_resources/5`
@@ -51,62 +86,21 @@ module Served
           instance.reload
         end
 
-        # Get or set the resource name for the given resource used for endpoint generation
-        #
-        # @param resource [String] the name of the resource
-        # @return [String] the name of the resource. `SomeResource.resource_name` will return `some_resources`
-        def resource_name(resource=nil)
-          @resource_name = resource if resource
-          @resource_name ||name.split('::').last.tableize
-        end
-
-        # @deprecated returns host information
-        def host_config
-          host
-        end
-
-        # Get or set the host for the resource
-        #
-        # @param host [String] the resource host
-        # @return [String] or [Hash] the configured host.
-        # @see Services::Configuration
-        def host(h=nil)
-          @host = h if h
-          @host ||= Served.config[:hosts][parent.name.underscore.split('/')[-1]]
-        end
-
-        # Get or set the timeout for the current resource
-        #
-        # @return [Integer] allowed timeout in seconds
-        def timeout(sec=nil)
-          @timeout = sec if sec
-          @timeout || Served.config.timeout
-        end
-
+        # @return [Served::HTTPClient] the HTTPClient using the configured backend
         def client
-          @connection ||= Served::HTTPClient.new(host_config, timeout, headers)
-        end
-
-        private
-
-        # Everything should allow an id attribute
-        def inherited(subclass)
-          return if subclass.attributes.include?(:id) # attribute method does this already, but rather not do a
-          # class_eval if not necessary
-          subclass.class_eval do
-            attribute :id
-          end
+          @client ||= Served::HTTPClient.new(self)
         end
 
       end
 
-      # @see Services::Resource::Base::resource_name
-      def resource_name
-        self.class.resource_name
+      def initialize(options={})
+        # placeholder
       end
 
       # Saves the record to the service. Will call POST if the record does not have an id, otherwise will call PUT
       # to update the record
+      #
+      # @return [Boolean] returns true or false depending on save success
       def save
         if id
           reload_with_attributes(put[resource_name.singularize])
@@ -116,13 +110,9 @@ module Served
         true
       end
 
-      alias_method :save!, :save # TODO: differentiate save! and safe much the same AR does.
-
-      def attributes
-        Hash[self.class.attributes.keys.collect { |name| [name, send(name)] }]
-      end
-
       # Reloads the resource using attributes from the service
+      #
+      # @return [self] self
       def reload
         reload_with_attributes(get)
         self
@@ -145,12 +135,16 @@ module Served
       end
 
       def handle_response(response)
-        raise ServiceError, response unless (200..299).include?(response.code)
+        raise ServiceError.new(self, response) unless (200..299).include?(response.code)
         JSON.parse(response.body)
       end
 
       def client
         self.class.client
+      end
+
+      def presenter
+        {resource_name.singularize.to_sym => attributes}
       end
 
     end

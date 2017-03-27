@@ -1,14 +1,29 @@
 module Served
-  module Support
+  module Resource
     module Serializable
       extend ActiveSupport::Concern
+
+      # pseudo boolean class for serialization
+      unless Object.const_defined?(:Boolean)
+        class ::Boolean;
+        end
+      end
 
       # Specialized class serializers
       SERIALIZERS = {
           Fixnum => {call: :to_i},
           String => {call: :to_s},
-          Symbol => {call: :to_sym},
-          Float => {call: :to_f}
+          Symbol => {call: :to_sym, converter: -> (value) {
+            if value.is_a? Array
+              value = value.map { |a| a.to_sym }
+              return value
+            end
+          }},
+          Float => {call: :to_f},
+          Boolean => {converter: -> (value) {
+            return false unless value == "true"
+            true
+          }}
       }
 
       included do
@@ -27,15 +42,18 @@ module Served
             if serializer.is_a? Proc
               value = serializer.call(value)
             elsif s = SERIALIZERS[serializer]
-              value = value.send(s[:call]) if s[:call] && value.respond_to?(s[:call])
-              value = s[:converter].call(value) if s[:converter]
+              called = false
+              if s[:call] && value.respond_to?(s[:call])
+                value = value.send(s[:call])
+                called = true
+              end
+              value = s[:converter].call(value) if s[:converter] && !called
             else
               value = serializer.new(value)
             end
           end
           super
         end
-
 
       end
 
@@ -50,7 +68,7 @@ module Served
       end
 
       # renders the model as json
-      def to_json
+      def to_json(*args)
         raise InvalidPresenter, 'Presenter must respond to #to_json' unless presenter.respond_to? :to_json
         presenter.to_json
       end
@@ -58,7 +76,7 @@ module Served
       # override this to return a presenter to be used for serialization, otherwise all attributes will be
       # serialized
       def presenter
-        {resource_name.singularize => attributes}
+        attributes
       end
 
     end
