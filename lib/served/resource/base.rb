@@ -125,8 +125,8 @@ module Served
       # otherwise it will parse the response and reloads the instance
       #
       # @return [Boolean|self] Returns true or instance
-      def destroy
-        result = delete
+      def destroy(params = {})
+        result = delete(params)
         return result if result.is_a?(TrueClass)
 
         reload_with_attributes(result)
