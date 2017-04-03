@@ -120,6 +120,19 @@ module Served
         self
       end
 
+      # Destroys the record on the service. Acts on status code
+      # If code is a 204 (no content) it will simply return true
+      # otherwise it will parse the response and reloads the instance
+      #
+      # @return [Boolean|self] Returns true or instance
+      def destroy
+        result = delete
+        return result if result.is_a?(TrueClass)
+
+        reload_with_attributes(result)
+        self
+      end
+
       private
 
       def get(params={})
@@ -134,6 +147,13 @@ module Served
       def post(params={})
         body = to_json
         handle_response(client.post(resource_name, body, params))
+      end
+
+      def delete(params={})
+        response = client.delete(resource_name, id, params)
+        return true if response.code == 204
+
+        handle_response(response)
       end
 
       def handle_response(response)
