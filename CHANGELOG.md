@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.2
+* Resource::Base#destroy added, (backend functionality existed, but was never added to #resource)
+
+## 0.2.1
+* Backtrace handler no longer explodes when the resource doesn't present a well formatted backtrace
+
 ## 0.2.0
 
 * new HTTP client backend functionality, ability to support multiple
