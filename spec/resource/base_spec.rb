@@ -140,6 +140,30 @@ describe Served::Resource::Base do
 
     end
 
-  end
+    context '#destroy' do
+      context 'response is a (204)' do
+        let(:response) { double(code: 204) }
+        before do
+          allow_any_instance_of(Served::HTTPClient).to receive(:delete).and_return(response)
+        end
 
+        it 'returns true' do
+          expect(subject.destroy).to be_truthy
+        end
+      end
+
+      context 'response is success' do
+        let(:body) { { attr2: 2, attr3: 3 }.stringify_keys }
+        let(:response) { double(code: 202, body: body.to_json) }
+        before do
+          allow_any_instance_of(Served::HTTPClient).to receive(:delete).and_return(response)
+        end
+
+        it 'returns true' do
+          expect(subject).to receive(:reload_with_attributes).with(body)
+          subject.destroy
+        end
+      end
+    end
+  end
 end
