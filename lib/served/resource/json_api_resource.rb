@@ -45,7 +45,7 @@ module Served
       end
 
       def error_message(error)
-        error.detail || error.title || 'No error message found'
+        error.detail || error.title || 'Error, but no error message found'
       end
     end
   end

@@ -115,8 +115,22 @@ describe Served::Resource::JsonApiResource do
         ]
       end
 
-      it 'has multiple error messages' do
-        expect(subject.valid?).to be_falsey
+      it 'sets the title as error message' do
+        expect(subject.errors.full_messages).to include(error.first[:title])
+      end
+    end
+
+    context 'wrong formatted error message' do
+      let(:error) do
+        [
+          {
+            error: 'Invalid request'
+          }
+        ]
+      end
+
+      it 'sets the title as error message' do
+        expect(subject.errors.full_messages).to include('Error, but no error message found')
       end
     end
   end
