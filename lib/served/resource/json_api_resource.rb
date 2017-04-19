@@ -12,7 +12,6 @@ module Served
         else
           reload_with_attributes(post)
         end
-        true
       end
 
       private
@@ -20,18 +19,20 @@ module Served
       def reload_with_attributes(result)
         if result.is_a?(Served::JsonApiError::Errors)
           result.each do |error|
-            attribute = error.source_parameter.to_sym
-            if self.attributes.keys.include?(attribute)
-              self.errors.add(attribute, error.detail)
+            if error.source_parameter && self.attributes.keys.include?(error.source_parameter.to_sym)
+              self.errors.add(error.source_parameter.to_sym, error_message(error))
             else
-              self.errors.add(:base, error.detail)
+              self.errors.add(:base, error_message(error))
             end
           end
+          set_attribute_defaults
+          false
         else
           result.each do |name, value|
             set_attribute(name.to_sym, value)
           end
           set_attribute_defaults
+          true
         end
       end
 
@@ -41,6 +42,10 @@ module Served
         else
           Served::JsonApiError::Errors.new(response)
         end
+      end
+
+      def error_message(error)
+        error.detail || error.title || 'No error message found'
       end
     end
   end

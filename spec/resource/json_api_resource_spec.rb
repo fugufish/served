@@ -33,19 +33,25 @@ describe Served::Resource::JsonApiResource do
   end
 
   describe 'service error' do
+    let(:client) { double(post: response)}
+    let(:response) { double({body: error.to_json, code: 422}) }
+
+    before do
+      allow(subject).to receive(:client).and_return client
+      subject.save
+    end
+
     context 'post returns a 422' do
-      let(:client) { double(post: response)}
       let(:error) do
         [
           {
             status: 422,
             title: 'Invalid Attribute',
             source: { pointer: '/data/attributes/first_name' },
-            detail: 'First name must contain at least three characters.'
+            detail: 'must contain at least three characters.'
           }
         ]
       end
-      let(:response) { double({body: error.to_json, code: 422}) }
 
       subject { ServiceResource.new(first_name: 'A') }
 
@@ -54,14 +60,64 @@ describe Served::Resource::JsonApiResource do
         subject.save
       end
 
-      it 'sets the resource to invalid' do
-        expect(subject.valid?).to be_falsey
-      end
-
       it 'has an error on the attribute' do
         expect(subject.errors[:first_name]).to include error.first[:detail]
       end
     end
 
+    context 'error with a non attribute message' do
+      let(:error) do
+        [
+          {
+            status: 422,
+            title: 'Invalid Parameter',
+            source: { parameter: 'warehouse_id' },
+            detail: 'Warehouse id does not exist'
+          }
+        ]
+      end
+
+      it 'has an error on base' do
+        expect(subject.errors[:base]).to include error.first[:detail]
+      end
+    end
+
+    context 'handles multiple error messages' do
+      let(:error) do
+        [
+          {
+            status: 422,
+            title: 'Invalid Attribute',
+            source: { pointer: '/data/attributes/first_name' },
+            detail: 'must contain at least three characters.'
+          },
+          {
+            status: 422,
+            title: 'Invalid Parameter',
+            source: { parameter: 'warehouse_id' },
+            detail: 'Warehouse id does not exist'
+          }
+        ]
+      end
+
+      it 'has multiple error messages' do
+        expect(subject.errors.size).to eq 2
+      end
+    end
+
+    context 'missing detail messages' do
+      let(:error) do
+        [
+          {
+            status: 422,
+            title: 'Invalid request'
+          }
+        ]
+      end
+
+      it 'has multiple error messages' do
+        expect(subject.valid?).to be_falsey
+      end
+    end
   end
 end
