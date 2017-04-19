@@ -24,7 +24,7 @@ describe Served::JsonApiError::Errors do
   let(:unparseable) { '<html></html>' }
 
   let(:response) {  double({body: errors}) }
-  let(:invalid_response) {  double({body: unparseable, status: 500}) }
+  let(:invalid_response) {  double({body: unparseable, code: 500}) }
 
 
   describe 'parsing' do

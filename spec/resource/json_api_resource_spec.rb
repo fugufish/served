@@ -129,8 +129,17 @@ describe Served::Resource::JsonApiResource do
         ]
       end
 
-      it 'sets the title as error message' do
+      it 'sets a default error message if no title can be found' do
         expect(subject.errors.full_messages).to include('Error, but no error message found')
+      end
+    end
+
+    context 'invalid json' do
+      let(:error) { '<html>error</html>' }
+      let(:response) { double({body: error, code: 422}) }
+
+      it 'handles invalid json and response' do
+        expect(subject.errors.full_messages).to include('Service responded with an unparsable body')
       end
     end
   end
