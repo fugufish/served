@@ -4,8 +4,14 @@ module Served
       include Enumerable
       attr_reader :errors
 
-      def initialize(errors_hash)
-        @errors = errors_hash.map { |error| Error.new(error) }
+      def initialize(response)
+        begin
+          errors_hash = JSON.parse(response.body)
+          @errors = errors_hash.map { |error| Error.new(error) }
+        rescue JSON::ParserError
+          @errors = [Error.new(status: response.status, title: 'Parsing Error',
+                     detail: 'Service responded with an unparsable body')]
+        end
       end
 
       def each(&block)

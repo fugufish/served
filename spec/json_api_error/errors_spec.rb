@@ -19,18 +19,30 @@ describe Served::JsonApiError::Errors do
         title: 'Invalid Attribute',
         detail: 'First name must contain at least three characters.'
       }
-    ]
+    ].to_json
   end
+  let(:unparseable) { '<html></html>' }
 
-  subject { described_class.new(errors) }
+  let(:response) {  double({body: errors}) }
+  let(:invalid_response) {  double({body: unparseable, status: 500}) }
+
 
   describe 'parsing' do
+    subject { described_class.new(response) }
     it 'creates new error objects' do
       expect(subject.first).to be_an_instance_of(Served::JsonApiError::Error)
     end
 
     it 'returns size of errors' do
-      expect(subject.errors.size).to eq errors.size
+      expect(subject.errors.size).to eq JSON.parse(errors).size
+    end
+  end
+
+  describe 'unparseable response' do
+    subject { described_class.new(invalid_response) }
+
+    it 'rescues the error and creates a custom error object' do
+      expect(subject.errors.first.title).to eq 'Parsing Error'
     end
   end
 end
