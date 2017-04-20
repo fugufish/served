@@ -93,6 +93,12 @@ module Served
           @client ||= Served::HTTPClient.new(self)
         end
 
+        def all(params = {})
+          client.get(resource_name, nil, params).map do |resource_json|
+            new(resource_json)
+          end
+        end
+
       end
 
       def initialize(options={})
