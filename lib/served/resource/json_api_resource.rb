@@ -8,7 +8,7 @@ module Served
       # @return [Boolean] returns true or false depending on save success
       def save
         if id
-          reload_with_attributes(put[resource_name.singularize])
+          reload_with_attributes(put)
         else
           reload_with_attributes(post)
         end
@@ -38,7 +38,8 @@ module Served
 
       def handle_response(response)
         if (200..299).include?(response.code)
-          JSON.parse(response.body)
+          resource_or_array = JSON.parse(response.body)
+          resource_or_array.fetch(resource_name.singularize, resource_or_array)
         else
           Served::JsonApiError::Errors.new(response)
         end
