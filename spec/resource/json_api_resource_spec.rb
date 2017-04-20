@@ -145,6 +145,16 @@ describe Served::Resource::JsonApiResource do
           expect(subject.errors.full_messages).to include('Service responded with an unparsable body')
         end
       end
+
+      context 'success' do
+        subject { ServiceResource.new(first_name: 'Fo') }
+        let(:body) { { service_resource: { id: 1, first_name: 'foobar' } }}
+        let(:response) { double({ body: body.to_json, code: 200 }) }
+
+        it 'successfully updates the attribute to the one of the response' do
+          expect(subject.first_name).to eq 'foobar'
+        end
+      end
     end
 
     describe 'put' do
