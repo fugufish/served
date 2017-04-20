@@ -3,6 +3,22 @@
 module Served
   module Resource
     class JsonApiResource < Served::Resource::Base
+      include Served::Helpers::HashHelper
+
+      class << self
+        def all(params = {})
+          response = client.get(resource_name, nil, params)
+          JSON.parse(response.body)['data'].map do |resource_json|
+            attributes = resource_json['attributes'].merge(id: resource_json['id'])
+            new(attributes)
+          end
+        end
+      end
+
+      def initialize(attributes = {})
+        super normalize_keys(attributes)
+      end
+
       # Saves the record to the service. Will call POST if the record does not have an id, otherwise will call PUT
       # to update the record
       #
@@ -39,8 +55,9 @@ module Served
 
       def handle_response(response)
         if (200..299).cover?(response.code)
-          resource_or_array = JSON.parse(response.body)
-          resource_or_array.is_a?(Array) ? resource_or_array : resource_or_array[resource_name.singularize]
+          data = JSON.parse(response.body)['data']
+          data = normalize_keys(data)
+          data['attributes'].merge(id: data['id'])
         else
           Served::JsonApiError::Errors.new(response)
         end

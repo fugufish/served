@@ -8,6 +8,9 @@ class ServiceResource < Served::Resource::JsonApiResource
 end
 
 describe Served::Resource::JsonApiResource do
+  let(:response) { double(body: body.to_json) }
+  let(:client) { double(get: response) }
+
   before :all do
     Served.configure do |config|
       config.hosts = {
@@ -148,7 +151,23 @@ describe Served::Resource::JsonApiResource do
 
       context 'success' do
         subject { ServiceResource.new(first_name: 'Fo') }
-        let(:body) { { service_resource: { id: 1, first_name: 'foobar' } }}
+        let(:body) {
+          {
+            data:
+              {
+                id: 1,
+                type: 'sorting-sections',
+                attributes: {
+                  'first-name' => 'foobar'
+                },
+                relationships: {
+                  'sorting-section-assignments' => {
+                    data: []
+                  }
+                }
+              }
+          }
+        }
         let(:response) { double({ body: body.to_json, code: 200 }) }
 
         it 'successfully updates the attribute to the one of the response' do
@@ -185,12 +204,72 @@ describe Served::Resource::JsonApiResource do
       end
 
       context 'success' do
-        let(:body) { { service_resource: { id: 1, first_name: 'foobar' } }}
+        let(:body) {
+          {
+            data:
+              {
+                id: 1,
+                type: 'sorting-sections',
+                attributes: {
+                  'first-name' => 'foobar'
+                }
+              }
+          }
+        }
         let(:response) { double({ body: body.to_json, code: 200 }) }
 
         it 'successfully updates the attribute to the one of the response' do
           expect(subject.first_name).to eq 'foobar'
         end
+      end
+    end
+
+    describe '.all' do
+      let(:body) do
+        {
+          data:
+            [
+              {
+                id: 1,
+                type: 'sorting-sections',
+                attributes: {
+                  'first-name' => 'foobar'
+                },
+                relationships: {
+                  'sorting-section-assignments' => {
+                    data: []
+                  }
+                }
+              },
+              {
+                id: 2,
+                type: 'sorting-sections',
+                attributes: {
+                  'first-name' => 'boobar'
+                },
+                relationships: {
+                  'sorting-section-assignments' => {
+                    data: []
+                  }
+                }
+              }
+
+            ]
+        }
+      end
+
+      subject { ServiceResource }
+
+      before do
+        allow(subject).to receive(:client).and_return client
+      end
+
+      it 'parses the response into an array of instances' do
+        ary = subject.all
+        expect(ary.length).to eq 2
+        expect(ary.first).to be_instance_of(ServiceResource)
+        expect(ary.first.first_name).to eq body[:data].first[:attributes]['first-name']
+        expect(ary.first.id).to eq body[:data].first[:id]
       end
     end
   end

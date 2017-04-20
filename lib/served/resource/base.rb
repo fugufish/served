@@ -98,7 +98,6 @@ module Served
             new(resource_json)
           end
         end
-
       end
 
       def initialize(options={})
