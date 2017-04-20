@@ -40,7 +40,7 @@ module Served
       def handle_response(response)
         if (200..299).cover?(response.code)
           resource_or_array = JSON.parse(response.body)
-          resource_or_array.fetch(resource_name.singularize, resource_or_array)
+          resource_or_array.is_a?(Array) ? resource_or_array : resource_or_array[resource_name.singularize]
         else
           Served::JsonApiError::Errors.new(response)
         end
