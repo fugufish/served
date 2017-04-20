@@ -1,15 +1,17 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Served::JsonApiError::Error do
   let(:basic_422) do
-        {
-          id: 67,
-          code: '123',
-          status: 422,
-          source: { pointer: '/data/attributes/first-name', parameter: 'include' },
-          title: 'Invalid Attribute',
-          detail: 'First name must contain at least three characters.'
-        }
+    {
+      id: 67,
+      code: '123',
+      status: 422,
+      source: { pointer: '/data/attributes/first-name', parameter: 'include' },
+      title: 'Invalid Attribute',
+      detail: 'First name must contain at least three characters.'
+    }
   end
 
   subject { described_class.new(basic_422) }

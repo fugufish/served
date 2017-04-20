@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Served::JsonApiError::Errors do
@@ -23,9 +25,8 @@ describe Served::JsonApiError::Errors do
   end
   let(:unparseable) { '<html></html>' }
 
-  let(:response) {  double({body: errors}) }
-  let(:invalid_response) {  double({body: unparseable, code: 500}) }
-
+  let(:response) { double(body: errors) }
+  let(:invalid_response) { double(body: unparseable, code: 500) }
 
   describe 'parsing' do
     subject { described_class.new(response) }

@@ -1,7 +1,8 @@
+# frozen_string_literal: true
+
 module Served
   module Resource
     class JsonApiResource < Served::Resource::Base
-
       # Saves the record to the service. Will call POST if the record does not have an id, otherwise will call PUT
       # to update the record
       #
@@ -19,10 +20,10 @@ module Served
       def reload_with_attributes(result)
         if result.is_a?(Served::JsonApiError::Errors)
           result.each do |error|
-            if error.source_parameter && self.attributes.keys.include?(error.source_parameter.to_sym)
-              self.errors.add(error.source_parameter.to_sym, error_message(error))
+            if error.source_parameter && attributes.keys.include?(error.source_parameter.to_sym)
+              errors.add(error.source_parameter.to_sym, error_message(error))
             else
-              self.errors.add(:base, error_message(error))
+              errors.add(:base, error_message(error))
             end
           end
           set_attribute_defaults
@@ -37,7 +38,7 @@ module Served
       end
 
       def handle_response(response)
-        if (200..299).include?(response.code)
+        if (200..299).cover?(response.code)
           resource_or_array = JSON.parse(response.body)
           resource_or_array.fetch(resource_name.singularize, resource_or_array)
         else
