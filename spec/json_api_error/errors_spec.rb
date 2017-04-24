@@ -12,7 +12,7 @@ describe Served::JsonApiError::Errors do
           status: 422,
           source: { pointer: '/data/attributes/first-name', parameter: 'include' },
           title: 'Invalid Attribute',
-          detail: 'First name must contain at least three characters.'
+          detail: 'must contain at least three characters.'
         },
         {
           id: 67,
@@ -20,7 +20,7 @@ describe Served::JsonApiError::Errors do
           status: 422,
           source: { pointer: '/data/attributes/first-name', parameter: 'include' },
           title: 'Invalid Attribute',
-          detail: 'First name must contain at least three characters.'
+          detail: 'must contain at least three characters.'
         }
       ]
     }.to_json
