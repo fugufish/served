@@ -9,7 +9,7 @@ module Served
 
       def initialize(response)
         errors_hash = JSON.parse(response.body)
-        @errors = errors_hash.map { |error| Error.new(error) }
+        @errors = errors_hash['errors'].map { |error| Error.new(error) }
       rescue JSON::ParserError
         @errors = [Error.new(status: response.code, title: 'Parsing Error',
                              detail: 'Service responded with an unparsable body')]
