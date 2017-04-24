@@ -2,9 +2,18 @@
 
 require 'spec_helper'
 
+class AddressResource < Served::Resource::JsonApiResource
+  attribute :id
+  attribute :street
+  attribute :city
+
+  resource_name 'addresses'
+end
+
 class ServiceResource < Served::Resource::JsonApiResource
   attribute :id
   attribute :first_name, presence: true
+  attribute :addresses, serialize: AddressResource
 
   resource_name 'service_resource'
 end
@@ -162,11 +171,6 @@ describe Served::Resource::JsonApiResource do
               type: 'sorting-sections',
               attributes: {
                 'first-name' => 'foobar'
-              },
-              relationships: {
-                'sorting-section-assignments' => {
-                  data: []
-                }
               }
             }
         }
@@ -291,11 +295,6 @@ describe Served::Resource::JsonApiResource do
               type: 'sorting-sections',
               attributes: {
                 'first-name' => 'foobar'
-              },
-              relationships: {
-                'sorting-section-assignments' => {
-                  data: []
-                }
               }
             },
             {
@@ -303,11 +302,6 @@ describe Served::Resource::JsonApiResource do
               type: 'sorting-sections',
               attributes: {
                 'first-name' => 'boobar'
-              },
-              relationships: {
-                'sorting-section-assignments' => {
-                  data: []
-                }
               }
             }
 
@@ -327,6 +321,49 @@ describe Served::Resource::JsonApiResource do
       expect(ary.first).to be_instance_of(ServiceResource)
       expect(ary.first.first_name).to eq body[:data].first[:attributes]['first-name']
       expect(ary.first.id).to eq body[:data].first[:id]
+    end
+  end
+
+  describe 'nested resource' do
+    context 'single nested resource' do
+      let(:body) do
+        {
+          data: {
+            id: 1,
+            type: 'sorting-sections',
+            attributes: {
+              'first-name' => 'foobar'
+            },
+            relationships: {
+              addresses: {
+                data: {
+                  id: 1,
+                  type: 'addresses',
+                  attributes: {
+                    street: 'Broadway',
+                    city: 'New York'
+                  }
+                }
+              }
+            }
+          }
+        }
+      end
+
+      subject { ServiceResource }
+      let(:response) { double(body: body.to_json, code: 200) }
+      let(:client) { double(get: response) }
+
+      before do
+        allow(subject).to receive(:client).and_return client
+      end
+
+      it 'parses the nested relationship' do
+        resource = subject.find(1)
+        expect(resource).to be_instance_of(ServiceResource)
+        expect(resource.addresses).to be_instance_of(AddressResource)
+        expect(resource.addresses.street).to eq 'Broadway'
+      end
     end
   end
 end

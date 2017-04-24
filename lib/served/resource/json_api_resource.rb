@@ -70,7 +70,10 @@ module Served
         if (200..299).cover?(response.code)
           data = JSON.parse(response.body)['data']
           data = normalize_keys(data)
-          data['attributes'].merge(id: data['id'])
+
+          restructured = restructure_json(data)
+          merge_relationships(restructured, data) if data['relationships']
+          restructured
         else
           Served::JsonApiError::Errors.new(response)
         end
@@ -78,6 +81,22 @@ module Served
 
       def error_message(error)
         error.detail || error.title || 'Error, but no error message found'
+      end
+
+      def merge_relationships(restructured, data)
+        data['relationships'].keys.each do |relationship|
+          rel = data['relationships'][relationship]
+
+          return unless rel && rel['data']
+          rel_data = rel['data']
+          attributes = restructure_json(rel_data)
+          restructured.merge!("#{rel['data']['type']}" => attributes)
+        end
+        restructured
+      end
+
+      def restructure_json(data)
+        data['attributes'].merge('id' => data['id'])
       end
     end
   end
