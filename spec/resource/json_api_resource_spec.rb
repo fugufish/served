@@ -227,6 +227,60 @@ describe Served::Resource::JsonApiResource do
     end
   end
 
+  describe '#destroy' do
+    subject { ServiceResource.new(first_name: 'Fo', id: 1) }
+    let(:response) { double(body: body.to_json, code: 422) }
+    let(:client) { double(delete: response) }
+
+    before do
+      allow(subject).to receive(:client).and_return client
+    end
+
+    context 'returns a 422' do
+      let(:body) do
+        {
+          errors: [
+            {
+              id: 'first-name',
+              status: 422,
+              title: 'Invalid Attribute',
+              detail: "Couldn't find XYZ"
+            }
+          ]
+        }
+      end
+
+      it 'returns false if an error is returned' do
+        expect(subject.destroy).to be_falsey
+      end
+
+      it 'parses the error message' do
+        subject.destroy
+        expect(subject.errors[:base]).to include body[:errors].first[:detail]
+      end
+    end
+
+    context 'success' do
+      let(:body) do
+        {
+          data:
+            {
+              id: 1,
+              type: 'sorting-sections',
+              attributes: {
+                'first-name' => 'foobar'
+              }
+            }
+        }
+      end
+      let(:response) { double(body: body.to_json, code: 200) }
+
+      it 'returns true if successful' do
+        expect(subject.destroy).to eq true
+      end
+    end
+  end
+
   describe '.all' do
     let(:body) do
       {

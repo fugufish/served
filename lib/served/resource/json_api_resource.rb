@@ -2,6 +2,7 @@
 
 module Served
   module Resource
+    # Resources that implement JSONApi Spec should use this class
     class JsonApiResource < Served::Resource::Base
       include Served::Helpers::HashHelper
 
@@ -29,6 +30,18 @@ module Served
         else
           reload_with_attributes(post)
         end
+      end
+
+      # Destroys the record on the service. Acts on status code
+      # If code is a 204 (no content) it will simply return true
+      # otherwise it will parse the response and reloads the instance
+      #
+      # @return [Boolean|self] Returns true or instance
+      def destroy(params = {})
+        result = delete(params)
+        return result if result.is_a?(TrueClass)
+
+        reload_with_attributes(result)
       end
 
       private
