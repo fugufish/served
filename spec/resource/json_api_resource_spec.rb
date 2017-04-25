@@ -2,6 +2,11 @@
 
 require 'spec_helper'
 
+class PeopleResource < Served::Resource::JsonApiResource
+  attribute :name
+  resource_name 'friends'
+end
+
 class AddressResource < Served::Resource::JsonApiResource
   attribute :id
   attribute :street
@@ -14,6 +19,7 @@ class ServiceResource < Served::Resource::JsonApiResource
   attribute :id
   attribute :first_name, presence: true
   attribute :addresses, serialize: AddressResource
+  attribute :friends, serialize: PeopleResource
 
   resource_name 'service_resource'
 end
@@ -325,6 +331,15 @@ describe Served::Resource::JsonApiResource do
   end
 
   describe 'nested resource' do
+    let(:response) { double(body: body.to_json, code: 200) }
+    let(:client) { double(get: response) }
+
+    before do
+      allow(subject).to receive(:client).and_return client
+    end
+
+    subject { ServiceResource }
+
     context 'single nested resource' do
       let(:body) do
         {
@@ -350,14 +365,6 @@ describe Served::Resource::JsonApiResource do
         }
       end
 
-      subject { ServiceResource }
-      let(:response) { double(body: body.to_json, code: 200) }
-      let(:client) { double(get: response) }
-
-      before do
-        allow(subject).to receive(:client).and_return client
-      end
-
       it 'parses the nested relationship' do
         resource = subject.find(1)
         expect(resource).to be_instance_of(ServiceResource)
@@ -365,5 +372,88 @@ describe Served::Resource::JsonApiResource do
         expect(resource.addresses.street).to eq 'Broadway'
       end
     end
+
+    context 'nested resource data array' do
+      let(:body) do
+        {
+          data: {
+            id: 1,
+            type: 'customer',
+            attributes: {
+              'first-name' => 'foobar'
+            },
+            relationships: {
+              addresses: {
+                data: [
+                  {
+                    id: 1,
+                    type: 'addresses',
+                    attributes: {
+                      street: 'Broadway',
+                      city: 'New York'
+                    }
+                  },
+                  {
+                    id: 2,
+                    type: 'addresses',
+                    attributes: {
+                      street: 'Main St',
+                      city: 'Baltimore'
+                    }
+                  }
+                ]
+              },
+              friends: {
+                data: [
+                  {
+                    id: 1,
+                    type: 'people',
+                    attributes: {
+                      name: 'Ruby'
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      end
+
+      it 'parses the nested relationships' do
+        resource = subject.find(1)
+        expect(resource).to be_instance_of(ServiceResource)
+        expect(resource.addresses).to be_instance_of(Array)
+        expect(resource.addresses.first).to be_instance_of(AddressResource)
+        expect(resource.addresses.first.street).to eq 'Broadway'
+        expect(resource.friends).to be_instance_of(Array)
+        expect(resource.friends.first).to be_instance_of(PeopleResource)
+        expect(resource.friends.first.name).to eq 'Ruby'
+      end
+    end
+
+    context 'empty nested resource data array' do
+      let(:body) do
+        {
+          data: {
+            id: 1,
+            type: 'customer',
+            attributes: {
+              'first-name' => 'foobar'
+            },
+            relationships: {
+              addresses: {
+                data: []
+              }
+            }
+          }
+        }
+      end
+
+      it 'returns an empty array' do
+        resource = subject.find(1)
+        expect(resource.addresses).to eq []
+      end
+    end
+
   end
 end

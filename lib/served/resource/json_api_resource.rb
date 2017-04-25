@@ -71,9 +71,9 @@ module Served
           data = JSON.parse(response.body)['data']
           data = normalize_keys(data)
 
-          restructured = restructure_json(data)
-          merge_relationships(restructured, data) if data['relationships']
-          restructured
+          attributes = restructure_json(data)
+          merge_relationships(attributes, data) if data['relationships']
+          attributes
         else
           Served::JsonApiError::Errors.new(response)
         end
@@ -83,18 +83,46 @@ module Served
         error.detail || error.title || 'Error, but no error message found'
       end
 
+      # Parse nested relationship data from JSON api hash structure into a simple nested hash
+      #
+      #
+      # data: {
+      #   id: 1,
+      #   type: 'customer',
+      #   attributes: {
+      #     'first-name' => 'foobar'
+      #   },
+      #   relationships: {
+      #     addresses: {
+      #       data: [
+      #         {
+      #           id: 1,
+      #           type: 'addresses',
+      #           attributes: {
+      #             street: 'Broadway',
+      #             city: 'New York'
+      #           }
+      #         }
+      #
       def merge_relationships(restructured, data)
         data['relationships'].keys.each do |relationship|
           rel = data['relationships'][relationship]
-
           return unless rel && rel['data']
+
           rel_data = rel['data']
-          attributes = restructure_json(rel_data)
-          restructured.merge!("#{rel['data']['type']}" => attributes)
+
+          relationship_attributes = if rel_data.is_a?(Array)
+                                      rel_data.inject([]) { |ary, rel| ary << restructure_json(rel) }
+                                    else
+                                      restructure_json(rel_data)
+                                    end
+
+          restructured.merge!(relationship => relationship_attributes)
         end
         restructured
       end
 
+      # Restructure JSON API structure into parseable hash
       def restructure_json(data)
         data['attributes'].merge('id' => data['id'])
       end
