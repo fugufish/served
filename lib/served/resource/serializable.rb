@@ -49,7 +49,7 @@ module Served
               end
               value = s[:converter].call(value) if s[:converter] && !called
             else
-              value = serializer.new(value)
+              value = value.is_a?(Array) ? value.map {|v| serializer.new(v) } : serializer.new(value)
             end
           end
           super
