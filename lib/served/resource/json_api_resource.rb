@@ -36,7 +36,7 @@ module Served
       # If code is a 204 (no content) it will simply return true
       # otherwise it will parse the response and reloads the instance
       #
-      # @return [Boolean|self] Returns true or instance
+      # @return [Boolean]
       def destroy(params = {})
         result = delete(params)
         return result if result.is_a?(TrueClass)
@@ -46,6 +46,9 @@ module Served
 
       private
 
+      # Reloads the instance with the new attributes
+      # If result is an Errors object it will create validation errors on the instance
+      # @return [Boolean]
       def reload_with_attributes(result)
         if result.is_a?(Served::JsonApiError::Errors)
           result.each do |error|
@@ -79,6 +82,8 @@ module Served
         end
       end
 
+      # fetches the error message from either detail or title
+      # if both are nil a custom message is returned
       def error_message(error)
         error.detail || error.title || 'Error, but no error message found'
       end

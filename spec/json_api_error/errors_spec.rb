@@ -36,7 +36,7 @@ describe Served::JsonApiError::Errors do
       expect(subject.first).to be_an_instance_of(Served::JsonApiError::Error)
     end
 
-    it 'returns size of errors' do
+    it 'parses all errors in the array' do
       expect(subject.errors.size).to eq JSON.parse(errors)['errors'].size
     end
   end

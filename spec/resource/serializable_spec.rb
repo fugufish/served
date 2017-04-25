@@ -63,7 +63,7 @@ describe Served::Resource::Serializable do
       context 'single nested resource' do
         let(:attributes) { { nested: {first_name: 'fooBar'} } }
 
-        it 'serialized the hash into the nested class' do
+        it 'serializes the hash into the nested class' do
           expect(subject.new(attributes).nested).to be_a(Nested)
           expect(subject.new(attributes).nested.first_name).to eq attributes[:nested][:first_name]
         end
@@ -73,7 +73,7 @@ describe Served::Resource::Serializable do
         let(:attributes) { { nested: [{ first_name: 'fooBar' }, {first_name: 'barFoo'}] } }
 
 
-        it 'serialized the hash into the nested classes' do
+        it 'serializes the hash into the nested classes' do
           expect(subject.new(attributes).nested.length).to eq 2
           expect(subject.new(attributes).nested.first.first_name).to eq attributes[:nested][0][:first_name]
         end

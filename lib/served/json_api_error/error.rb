@@ -48,10 +48,6 @@ module Served
         res ? res : {}
       end
 
-      def meta
-        MetaData.new(attrs.fetch(:meta, {}))
-      end
-
       protected
 
       attr_reader :attrs
