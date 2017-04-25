@@ -9,3 +9,5 @@
 /tmp/
 *.iml
 .idea/**
+.rvmrc
+.byebug_history

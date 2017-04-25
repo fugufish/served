@@ -11,5 +11,4 @@ require 'served/http_client'
 require 'served/resource'
 require 'served/attribute'
 
-
-
+require 'served/json_api'

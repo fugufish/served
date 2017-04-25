@@ -105,6 +105,33 @@ describe Served::Resource::Base do
         end
 
       end
+
+      describe '.all' do
+        let(:response) do
+          [
+            {
+              attr1: 'Foo',
+              attr2: 'FooBar',
+            },
+            {
+              attr1: 'Boo',
+              attr2: 'BooBar',
+            }
+          ]
+        end
+        let(:client) { double(get: response) }
+
+        before do
+          allow(subject).to receive(:client).and_return client
+        end
+
+        it 'parses the response into an array of instances' do
+          ary = subject.all
+          expect(ary.length).to eq 2
+          expect(ary.first).to be_instance_of(klass)
+          expect(ary.first.attr1).to eq response.first[:attr1]
+        end
+      end
     end
   end
 

@@ -1,5 +1,12 @@
 require 'spec_helper'
 describe Served::Resource::Serializable do
+  class Nested
+    include Served::Resource::Serializable
+    attribute :first_name
+    def initialize(*args)
+    end
+  end
+
   subject do
     Class.new do
       include Served::Resource::Serializable
@@ -8,6 +15,7 @@ describe Served::Resource::Serializable do
       attribute :symbol,  serialize: Symbol
       attribute :float,   serialize: Float
       attribute :boolean, serialize: Boolean
+      attribute :nested, serialize: Nested
 
       def initialize(*args)
       end
@@ -49,6 +57,28 @@ describe Served::Resource::Serializable do
         expect(subject.new(boolean: 'true').boolean).to eq true
         expect(subject.new(boolean: 'false').boolean).to eq false
       end
+    end
+
+    context 'Nested Resources' do
+      context 'single nested resource' do
+        let(:attributes) { { nested: {first_name: 'fooBar'} } }
+
+        it 'serializes the hash into the nested class' do
+          expect(subject.new(attributes).nested).to be_a(Nested)
+          expect(subject.new(attributes).nested.first_name).to eq attributes[:nested][:first_name]
+        end
+      end
+
+      context 'array of nested objects' do
+        let(:attributes) { { nested: [{ first_name: 'fooBar' }, {first_name: 'barFoo'}] } }
+
+
+        it 'serializes the hash into the nested classes' do
+          expect(subject.new(attributes).nested.length).to eq 2
+          expect(subject.new(attributes).nested.first.first_name).to eq attributes[:nested][0][:first_name]
+        end
+      end
+
     end
 
   end

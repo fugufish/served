@@ -83,9 +83,9 @@ module Served
         #
         # @param id [Integer] the id of the resource
         # @return [Resource::Base] the resource object.
-        def find(id)
+        def find(id, params = {})
           instance = new(id: id)
-          instance.reload
+          instance.reload(params)
         end
 
         # @return [Served::HTTPClient] the HTTPClient using the configured backend
@@ -93,6 +93,11 @@ module Served
           @client ||= Served::HTTPClient.new(self)
         end
 
+        def all(params = {})
+          client.get(resource_name, nil, params).map do |resource_json|
+            new(resource_json)
+          end
+        end
       end
 
       def initialize(options={})
@@ -115,8 +120,8 @@ module Served
       # Reloads the resource using attributes from the service
       #
       # @return [self] self
-      def reload
-        reload_with_attributes(get)
+      def reload(params = {})
+        reload_with_attributes(get(params))
         self
       end
 
