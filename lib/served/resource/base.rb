@@ -3,6 +3,8 @@ require_relative 'serializable'
 require_relative 'validatable'
 require_relative 'configurable'
 
+require_relative 'errors'
+
 module Served
   module Resource
     # Service Resources should inherit directly from this class. Provides interfaces necessary for communicating with
@@ -26,7 +28,6 @@ module Served
 
       # Default headers for every request
       HEADERS = {'Content-type' => 'application/json', 'Accept' => 'application/json'}
-
 
       # raised when the connection receives a response from a service that does not constitute a 200
       class ServiceError < StandardError
@@ -63,6 +64,10 @@ module Served
         HEADERS
       end
 
+      class_configurable :handlers do
+        {}
+      end
+
       class_configurable :template do
         '{/resource*}{/id}.json{?query*}'
       end
@@ -94,6 +99,24 @@ module Served
         end
 
       end
+
+      handle((200..201),:serialize_response)
+      handle(204) { attributes }
+
+      # 400 level errors
+      handle(301) { Resource::MovedPermenantly }
+      handle(400) { Resource::BadRequest }
+      handle(401) { Resource::Unauthorized }
+      handle(403) { Resource::Forbidden }
+      handle(404) { Resource::NotFound }
+      handle(405) { Resource::MethodNotAllowed }
+      handle(406) { Resource::NotAcceptable }
+      handle(408) { Resource::RequestTimeout }
+      handle(422) { Resource::UnprocessableEntity }
+
+      # 500 level errors
+      handle(500) { Resource::InternalServerError }
+      handle(503) { Resource::BadGateway }
 
       def initialize(options={})
         # placeholder
@@ -154,11 +177,6 @@ module Served
         return true if response.code == 204
 
         handle_response(response)
-      end
-
-      def handle_response(response)
-        raise ServiceError.new(self, response) unless (200..299).include?(response.code)
-        JSON.parse(response.body)
       end
 
       def client

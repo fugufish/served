@@ -13,6 +13,37 @@ describe Served::Resource::Serializable do
       end
     end
   end
+  
+  describe '::handle_response' do
+
+    context 'default serializer' do
+
+      let(:stub_serializer) {
+        Class.new do
+          extend Served.config.serializer
+        end
+      }
+
+      let(:fake_200_response) {
+        double('Response Object', code: 200, body: '{ "id": 1 }')
+      }
+
+      let(:fake_201_response) {
+        double('Response Object', code: 201, body: '{ "id": 1 }')
+      }
+
+      describe '200 or 201' do
+        it 'returns the result of serialize_response in the serializer' do
+          expect(subject.send(:handle_response, fake_200_response))
+             .to eq(stub_serializer.serialize_response(fake_200_response.body))
+          expect(subject.send(:handle_response, fake_201_response))
+             .to eq(stub_serializer.serialize_response(fake_201_response.body))
+        end
+      end
+
+    end
+
+  end
 
   describe 'SERIALIZERS' do
 
@@ -51,25 +82,6 @@ describe Served::Resource::Serializable do
       end
     end
 
-  end
-
-  describe '#to_json' do
-
-    let(:instance) { subject.new }
-
-    it 'converts the attributes to json format' do
-      expect(instance.to_json).to eq(instance.attributes.to_json)
-    end
-
-    context 'custom presenter' do
-
-      it 'returns the result of the presenter' do
-        subject.redefine_method(:presenter) do
-          {foo: 'bar'}
-        end
-        expect(instance.to_json).to eq({foo: 'bar'}.to_json)
-      end
-    end
   end
 
 end
