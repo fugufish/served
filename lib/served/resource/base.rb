@@ -1,6 +1,7 @@
 require_relative 'attributable'
 require_relative 'serializable'
 require_relative 'validatable'
+require_relative 'requestable'
 require_relative 'configurable'
 
 require_relative 'errors'
@@ -20,172 +21,19 @@ module Served
     # Served Resource, it will validate the nested resource as well as the top level.
     class Base
       include Configurable
+      include Requestable
       include Attributable
       include Validatable
       include Serializable
 
       attribute :id
 
-      # Default headers for every request
-      HEADERS = {'Content-type' => 'application/json', 'Accept' => 'application/json'}
-
-      # raised when the connection receives a response from a service that does not constitute a 200
-      class ServiceError < StandardError
-        attr_reader :response
-
-        def initialize(resource, response)
-          @response = response
-          begin
-            error = JSON.parse(response.body)
-          rescue JSON::ParserError
-            super "Service #{resource.class.name} experienced an error and sent back an invalid error response"
-            return
-          end
-          if error['error']
-            super "Service #{resource.class.name} responded with an error: #{error['error']} -> #{error['exception']}"
-            set_backtrace(error['traces']['Full Trace'].collect {|e| e['trace']})
-          end
-        end
-      end
-
-      class_configurable :resource_name do
-        name.split('::').last.tableize
-      end
-
-      class_configurable :host do
-        Served.config[:hosts][parent.name.underscore.split('/')[-1]] || Served.config[:hosts][:default]
-      end
-
-      class_configurable :timeout do
-        Served.config.timeout
-      end
-
-      class_configurable :_headers do
-        HEADERS
-      end
-
-      class_configurable :handlers do
-        {}
-      end
-
-      class_configurable :template do
-        '{/resource*}{/id}.json{?query*}'
-      end
-
-      class << self
-
-        # Defines the default headers that should be used for the request.
-        #
-        # @param headers [Hash] the headers to send with each requesat
-        # @return headers [Hash] the default headers for the class
-        def headers(h={})
-          headers ||= _headers
-          _headers(headers.merge!(h)) unless h.empty?
-          _headers
-        end
-
-        # Looks up a resource on the service by id. For example `SomeResource.find(5)` would call `/some_resources/5`
-        #
-        # @param id [Integer] the id of the resource
-        # @return [Resource::Base] the resource object.
-        def find(id)
-          instance = new(id: id)
-          instance.reload
-        end
-
-        # @return [Served::HTTPClient] the HTTPClient using the configured backend
-        def client
-          @client ||= Served::HTTPClient.new(self)
-        end
-
-      end
-
-      handle((200..201),:serialize_response)
-      handle(204) { attributes }
-
-      # 400 level errors
-      handle(301) { Resource::MovedPermenantly }
-      handle(400) { Resource::BadRequest }
-      handle(401) { Resource::Unauthorized }
-      handle(403) { Resource::Forbidden }
-      handle(404) { Resource::NotFound }
-      handle(405) { Resource::MethodNotAllowed }
-      handle(406) { Resource::NotAcceptable }
-      handle(408) { Resource::RequestTimeout }
-      handle(422) { Resource::UnprocessableEntity }
-
-      # 500 level errors
-      handle(500) { Resource::InternalServerError }
-      handle(503) { Resource::BadGateway }
 
       def initialize(options={})
         # placeholder
       end
 
-      # Saves the record to the service. Will call POST if the record does not have an id, otherwise will call PUT
-      # to update the record
-      #
-      # @return [Boolean] returns true or false depending on save success
-      def save
-        if id
-          reload_with_attributes(put[resource_name.singularize])
-        else
-          reload_with_attributes(post[resource_name.singularize])
-        end
-        true
-      end
 
-      # Reloads the resource using attributes from the service
-      #
-      # @return [self] self
-      def reload
-        reload_with_attributes(get)
-        self
-      end
-
-      # Destroys the record on the service. Acts on status code
-      # If code is a 204 (no content) it will simply return true
-      # otherwise it will parse the response and reloads the instance
-      #
-      # @return [Boolean|self] Returns true or instance
-      def destroy(params = {})
-        result = delete(params)
-        return result if result.is_a?(TrueClass)
-
-        reload_with_attributes(result)
-        self
-      end
-
-      private
-
-      def get(params={})
-        handle_response(client.get(resource_name, id, params))
-      end
-
-      def put(params={})
-        body = to_json
-        handle_response(client.put(resource_name, id, body, params))
-      end
-
-      def post(params={})
-        body = to_json
-        handle_response(client.post(resource_name, body, params))
-      end
-
-      def delete(params={})
-        response = client.delete(resource_name, id, params)
-        return true if response.code == 204
-
-        handle_response(response)
-      end
-
-      def client
-        self.class.client
-      end
-
-      def presenter
-        {resource_name.singularize.to_sym => attributes}
-      end
 
     end
   end

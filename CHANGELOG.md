@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.0
+* Added Serializers feature, ability to define different methods of serializing resource response
+* New error handling, will report different errors based on response from resource
+* added `handler` response configuration, allows different handlers to be set up for specific
+  response codes.
+* added `Json` handler as default
+* added `JsonApi` handler
+
 ## 0.2.2
 * Resource::Base#destroy added, (backend functionality existed, but was never added to #resource)
 
