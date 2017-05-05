@@ -5,24 +5,16 @@ module Served
     # The default serializer assumes that the default Rails API response is used for both data and errors.
     module Json
 
-      def serialize_response(data)
+      def self.load(data)
         JSON.parse(data)
-      rescue => e
-        raise SerializationError.new(e)
       end
 
-      def serialize_resource
-        if serializeable_options[:root]
-          {self.class.name.underscore => attributes.to_json}
-        else
-          attributes.to_json
-        end
+      def self.dump(attributes)
+        attributes.to_json
       end
 
-      def serialize_error(data)
+      def self.exception(data)
         JSON.parse(data)
-      rescue => e
-        raise SerializationError.new(e)
       end
 
     end

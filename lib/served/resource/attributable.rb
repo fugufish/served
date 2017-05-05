@@ -53,9 +53,9 @@ module Served
 
       module Prepend
 
-        def initialize(options={})
-          reload_with_attributes(options.symbolize_keys)
-          super options
+        def initialize(hash={})
+          reload_with_attributes(hash.symbolize_keys)
+          super hash
         end
 
       end
@@ -68,6 +68,7 @@ module Served
       private
 
       def reload_with_attributes(attributes)
+        attributes = self.class.from_hash(attributes)
         attributes.each do |name, value|
           set_attribute(name.to_sym, value)
         end

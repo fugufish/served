@@ -13,73 +13,38 @@ describe Served::Resource::Serializable do
       end
     end
   end
-  
-  describe '::handle_response' do
 
-    context 'default serializer' do
+  it 'sets the default serializer to json' do
+    expect(subject.serializer).to eq(Served::Serializers::Json)
+  end
 
-      let(:stub_serializer) {
-        Class.new do
-          extend Served.config.serializer
-        end
-      }
+  describe '::from_hash' do
 
-      let(:fake_200_response) {
-        double('Response Object', code: 200, body: '{ "id": 1 }')
-      }
+    let(:hash) { { fixnum: "1", string: 1, symbol: "foo", float: '0.1', boolean: 'false' } }
 
-      let(:fake_201_response) {
-        double('Response Object', code: 201, body: '{ "id": 1 }')
-      }
+    it 'loads the data in the given string using the provided serializer' do
+      expect { subject.from_hash(hash) }.to_not raise_exception
+    end
 
-      describe '200 or 201' do
-        it 'returns the result of serialize_response in the serializer' do
-          expect(subject.send(:handle_response, fake_200_response))
-             .to eq(stub_serializer.serialize_response(fake_200_response.body))
-          expect(subject.send(:handle_response, fake_201_response))
-             .to eq(stub_serializer.serialize_response(fake_201_response.body))
-        end
-      end
+    it 'correctly loads fixnums' do
+      expect(subject.from_hash(hash)[:fixnum]).to eq(1)
+    end
 
+    it 'correctly loads strings' do
+      expect(subject.from_hash(hash)[:string]).to eq('1')
+    end
+
+    it 'correctly loads symbols' do
+      expect(subject.from_hash(hash)[:symbol]).to eq(:foo)
     end
 
   end
 
-  describe 'SERIALIZERS' do
+  describe '::load' do
 
-    context 'Fixnum' do
-      it 'converts the value correctly' do
-        expect(subject.new(fixnum: '1').fixnum).to eq 1
-      end
-    end
-
-    context 'String' do
-      it 'converts the value correctly' do
-        expect(subject.new(string: 1).string).to eq '1'
-      end
-    end
-
-    context 'Symbol' do
-      it 'converts the value correctly' do
-        expect(subject.new(symbol: 'test').symbol).to eq :test
-      end
-
-      it 'converts all elements of an array to symbols' do
-        expect(subject.new(symbol: %w{a b c d e}).symbol).to eq [:a, :b, :c, :d, :e]
-      end
-    end
-
-    context 'Float' do
-      it 'converts the value correctly' do
-        expect(subject.new(float: '1.1').float).to eq 1.1
-      end
-    end
-
-    context 'Boolean' do
-      it 'converts the value correctly' do
-        expect(subject.new(boolean: 'true').boolean).to eq true
-        expect(subject.new(boolean: 'false').boolean).to eq false
-      end
+    it 'uses the serializer to load the provided string' do
+      expect(subject.serializer).to receive(:load).and_return({})
+      expect { subject.load('{}') }.to_not raise_exception
     end
 
   end

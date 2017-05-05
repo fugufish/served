@@ -29,59 +29,54 @@ module Served
       included do
         include Configurable
         include Attributable
-        prepend Prepend
 
-        class_configurable :_serializer
+        class_configurable :serializer
         class_configurable :use_root_node, default: Served.config.use_root_node
 
         serializer Served.config.serializer
       end
 
-      module Prepend
-
-        # extend set attribute to serialize the value using the :serialize option in the attribute options
-        def set_attribute(name, value)
-          return unless self.class.attributes[name]
-          if serializer = self.class.attributes[name][:serialize]
-            if serializer.is_a? Proc
-              value = serializer.call(value)
-            elsif s = SERIALIZERS[serializer]
-              called = false
-              if s[:call] && value.respond_to?(s[:call])
-                value  = value.send(s[:call])
-                called = true
-              end
-              value = s[:converter].call(value) if s[:converter] && !called
-            else
-              value = serializer.new(value)
-            end
-          end
-          super
-        end
-
-      end
-
       module ClassMethods
 
+        def load(string)
+          result = serializer.load(string)
+          new(result)
+        end
 
-
-        # Define a new serializer for the class
-        #
-        # @param mod [Module] the serializer module to use for this class
-        def serializer(mod)
-          _serializer mod
-          instance_exec do
-            extend _serializer
+        def from_hash(hash)
+          hash.each do |name, value|
+            hash[name] = serialize_attribute(name, value)
           end
+          hash.symbolize_keys
         end
 
         private
 
-        def serializer_for_attribute(attr, serializer)
-          attributes[attr][:serializer] = serializer
+        def serialize_attribute(attr, value)
+          return value unless attributes[attr.to_sym]
+          s = attributes[attr.to_sym][:serialize]
+          return s.call(value) if s.is_a? Proc # already callable
+          s = SERIALIZERS[s]
+          raise InvalidSerializer.new(s) unless s # no mapping
+          if s[:call] && value.respond_to?(s[:call])
+            return value.send(s[:call])
+          end
+          if s[:converter]
+            return s[:converter].call(value)
+          end
+          s.new(value)
         end
 
       end
+
+      def dump
+        self.class.serializer.dump(attributes)
+      end
+
+      def load(string)
+        self.class.serializer.load(string)
+      end
+
 
     end
   end
