@@ -47,6 +47,11 @@ describe Served::Resource::Serializable do
       expect { subject.load('{}') }.to_not raise_exception
     end
 
+    it 'throws an appropriate error when a response fails to load' do
+      expect(subject.serializer).to receive(:load).and_raise('An Error')
+      expect { subject.load('') }.to raise_error(Served::Resource::ResponseInvalid)
+    end
+
   end
 
 end

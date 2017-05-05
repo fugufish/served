@@ -1,3 +1,5 @@
+require_relative 'response_invalid'
+
 module Served
   module Resource
     module Serializable
@@ -39,7 +41,11 @@ module Served
       module ClassMethods
 
         def load(string)
-          result = serializer.load(string)
+          begin
+            result = serializer.load(string)
+          rescue => e
+            raise ResponseInvalid.new(self, e)
+          end
           new(result)
         end
 
