@@ -4,6 +4,7 @@ module Served
       extend ActiveSupport::Concern
 
       included do
+        include Serializable
         prepend Prepend
         singleton_class.prepend ClassMethods::Prepend
       end

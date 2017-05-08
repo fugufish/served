@@ -46,7 +46,7 @@ module Served
           rescue => e
             raise ResponseInvalid.new(self, e)
           end
-          new(result)
+          result
         end
 
         def from_hash(hash)
@@ -59,7 +59,7 @@ module Served
         private
 
         def serialize_attribute(attr, value)
-          return value unless attributes[attr.to_sym]
+          return value unless attributes[attr.to_sym] && attributes[attr.to_sym][:serialize]
           s = attributes[attr.to_sym][:serialize]
           return s.call(value) if s.is_a? Proc # already callable
           s = SERIALIZERS[s]

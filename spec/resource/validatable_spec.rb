@@ -3,6 +3,7 @@ describe Served::Resource::Validatable do
   subject do
     Class.new do
       include Served::Resource::Validatable
+      include Served::Resource::Serializable
       attribute :presence,     presence: true
       attribute :numericality, numericality: true
       attribute :format,       format: /[a-z]+/

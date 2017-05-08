@@ -39,7 +39,7 @@ module Served
           '{/resource*}{/id}.json{?query*}'
         end
 
-        handle((200..201), :serialize_response)
+        handle((200..201), :load)
         handle([204, 202]) { attributes }
 
         # 400 level errors
