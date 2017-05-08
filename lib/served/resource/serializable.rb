@@ -1,4 +1,5 @@
 require_relative 'response_invalid'
+require_relative 'invalid_attribute_serializer'
 
 module Served
   module Resource
@@ -61,9 +62,10 @@ module Served
         def serialize_attribute(attr, value)
           return value unless attributes[attr.to_sym] && attributes[attr.to_sym][:serialize]
           s = attributes[attr.to_sym][:serialize]
+          return s.new(value) if s.ancestors.include?(Served::Attribute::Base)
           return s.call(value) if s.is_a? Proc # already callable
           s = SERIALIZERS[s]
-          raise InvalidSerializer.new(s) unless s # no mapping
+          raise InvalidAttributeSerializer.new(s) unless s # no mapping
           if s[:call] && value.respond_to?(s[:call])
             return value.send(s[:call])
           end
