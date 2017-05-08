@@ -69,7 +69,7 @@ module Served
           else
             result = send(handler, response.body)
           end
-          if result.ancestors.include? HttpError
+          if result.respond_to?(:ancestors) && result.ancestors.include?(HttpError)
             raise result.new(self, response)
           end
           result

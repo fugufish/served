@@ -12,23 +12,6 @@ module Served
         end
       end
 
-      # Specialized class serializers
-      SERIALIZERS = {
-         Fixnum  => { call: :to_i },
-         String  => { call: :to_s },
-         Symbol  => { call: :to_sym, converter: -> (value) {
-           if value.is_a? Array
-             value = value.map { |a| a.to_sym }
-             return value
-           end
-         } },
-         Float   => { call: :to_f },
-         Boolean => { converter: -> (value) {
-           return false unless value == "true"
-           true
-         } }
-      }
-
       included do
         include Configurable
         include Attributable
@@ -59,20 +42,34 @@ module Served
 
         private
 
+        def attribute_serializer_for(type)
+          case
+            when type.class <= NilClass then
+              ->(v) { return v }
+            when type <= Fixnum, type <= Integer then
+              ->(v) { return v.to_i }
+            when type <= String then
+              ->(v) { return v.to_s }
+            when type <= Symbol then
+              ->(v) { return v.to_sym }
+            when type <= Float then
+              ->(v) { return v.to_f }
+            when type <= Served::Resource::Base, type <= Served::Attribute::Base then
+              -> (v) { type.new(v) }
+            when type <= Boolean then
+              ->(v) {
+                return false unless v == "true"
+                true
+              }
+            else
+              raise InvalidAttributeSerializer.new(type)
+          end
+        end
+
         def serialize_attribute(attr, value)
-          return value unless attributes[attr.to_sym] && attributes[attr.to_sym][:serialize]
-          s = attributes[attr.to_sym][:serialize]
-          return s.new(value) if s.ancestors.include?(Served::Attribute::Base)
-          return s.call(value) if s.is_a? Proc # already callable
-          s = SERIALIZERS[s]
-          raise InvalidAttributeSerializer.new(s) unless s # no mapping
-          if s[:call] && value.respond_to?(s[:call])
-            return value.send(s[:call])
-          end
-          if s[:converter]
-            return s[:converter].call(value)
-          end
-          s.new(value)
+          return false unless attributes[attr.to_sym]
+          serializer = attribute_serializer_for(attributes[attr.to_sym][:serialize])
+          serializer.call(value)
         end
 
       end
