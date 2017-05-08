@@ -43,7 +43,7 @@ module Served
         handle([204, 202]) { attributes }
 
         # 400 level errors
-        handle(301) { Resource::MovedPermenantly }
+        handle(301) { Resource::MovedPermanently }
         handle(400) { Resource::BadRequest }
         handle(401) { Resource::Unauthorized }
         handle(403) { Resource::Forbidden }
@@ -69,7 +69,7 @@ module Served
           else
             result = send(handler, response.body)
           end
-          if result.is_a? HttpError
+          if result.ancestors.include? HttpError
             raise result.new(self, response)
           end
           result
