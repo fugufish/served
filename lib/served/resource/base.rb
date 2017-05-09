@@ -28,13 +28,6 @@ module Served
 
       attribute :id
 
-
-      def initialize(options={})
-        # placeholder
-      end
-
-
-
     end
   end
 end

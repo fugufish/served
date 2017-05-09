@@ -43,33 +43,38 @@ module Served
         private
 
         def attribute_serializer_for(type)
-          case
-            when type.class <= NilClass then
-              ->(v) { return v }
-            when type <= Fixnum, type <= Integer then
-              ->(v) { return v.to_i }
-            when type <= String then
-              ->(v) { return v.to_s }
-            when type <= Symbol then
-              ->(v) { return v.to_sym }
-            when type <= Float then
-              ->(v) { return v.to_f }
-            when type <= Served::Resource::Base, type <= Served::Attribute::Base then
-              -> (v) { type.new(v) }
-            when type <= Boolean then
-              ->(v) {
-                return false unless v == "true"
-                true
-              }
-            else
-              raise InvalidAttributeSerializer.new(type)
+          # case statement wont work here because of how it does class matching
+          return ->(v) { return v }        unless type # nil
+          return ->(v) { return v.to_i }   if type == Integer || type == Fixnum
+          return ->(v) { return v.to_s }   if type == String
+          return ->(v) { return v.to_sym } if type == Symbol
+          return ->(v) { return v.to_f }   if type == Float
+          if type == Boolean
+            return lambda do |v|
+              return false unless v == "true"
+              true
+            end
           end
+          return ->(v) { type.new(v) } if type.ancestors.include?(Served::Resource::Base) ||
+                                          type.ancestors.include?(Served::Attribute::Base)
+          raise InvalidAttributeSerializer, type
         end
 
         def serialize_attribute(attr, value)
           return false unless attributes[attr.to_sym]
           serializer = attribute_serializer_for(attributes[attr.to_sym][:serialize])
-          serializer.call(value)
+          if value.is_a? Array
+            return value unless attributes[attr.to_sym][:serialize]
+            value.collect do |v|
+              if v.is_a? attributes[attr.to_sym][:serialize]
+                v
+              else
+                serializer.call(v)
+              end
+            end
+          else
+            serializer.call(value)
+          end
         end
 
       end

@@ -20,9 +20,8 @@ describe Served::Resource::Serializable do
       attribute :float,   serialize: Float
       attribute :boolean, serialize: Boolean
       attribute :attr,    serialize: Class.new(Served::Attribute::Base) { attribute :test }
+      attribute :arry,    serialize: Class.new(Served::Attribute::Base) { attribute :test }
 
-      def initialize(*args)
-      end
     end
   end
 
@@ -34,7 +33,16 @@ describe Served::Resource::Serializable do
 
   describe '::from_hash' do
 
-    let(:hash) { { fixnum: "1", string: 1, symbol: "foo", float: '0.1', boolean: 'false', attr: { test: 'string' } } }
+    let(:hash) do
+      { fixnum: '1',
+        string: 1,
+        symbol: 'foo',
+        float: '0.1',
+        boolean: 'false',
+        attr: { test: 'string' },
+        arry: [{ test: 'string' }, { test: 'another string' }]
+      }
+    end
 
     it 'loads the data in the given string using the provided serializer' do
       expect { subject.from_hash(hash) }.to_not raise_exception
@@ -54,6 +62,10 @@ describe Served::Resource::Serializable do
 
     it 'correctly loads resource attributes' do
       expect(subject.from_hash(hash)[:attr].class).to eq(subject.attributes[:attr][:serialize])
+    end
+
+    it 'correctly loads array instances' do
+      expect(subject.from_hash(hash)[:arry].first.class).to eq(subject.attributes[:arry][:serialize])
     end
 
     describe 'invalid attribute serializer' do

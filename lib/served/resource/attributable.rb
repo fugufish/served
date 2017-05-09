@@ -5,7 +5,6 @@ module Served
 
       included do
         include Serializable
-        prepend Prepend
         singleton_class.prepend ClassMethods::Prepend
       end
 
@@ -52,13 +51,8 @@ module Served
 
       end
 
-      module Prepend
-
-        def initialize(hash={})
-          reload_with_attributes(hash.symbolize_keys)
-          super hash
-        end
-
+      def initialize(hash={})
+        reload_with_attributes(hash)
       end
 
       # @return [Array] the keys for all the defined attributes
