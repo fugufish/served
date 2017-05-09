@@ -26,10 +26,11 @@ module Served
 
         def load(string)
           begin
-            result = serializer.load(string)
+            result = serializer.load(self, string)
           rescue => e
             raise ResponseInvalid.new(self, e)
           end
+          raise ResponseInvalid.new(self) unless result
           result
         end
 

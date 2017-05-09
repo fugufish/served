@@ -11,21 +11,25 @@ module Served
       end
 
       def initialize(resource, response)
-        if resource.respond_to? :serialize_error
-          serialized = serialize_error(response)
+        if resource.serializer.respond_to? :exception
+          serialized = resource.serializer.exception(response.body).symbolize_keys!
 
           @error            = serialized[:error]
           @message          = serialized[:exception]
           @server_backtrace = serialized[:backtrace]
           @code             = serialized[:code]
 
-          super("An error '#{code || status} #{message}' occurred while making this request")
+          super("An error '#{code} #{message}' occurred while making this request")
         end
         super "An error occurred '#{self.class.code}'"
       end
 
       def status
         self.class.status
+      end
+
+      def code
+        @code || self.class.code
       end
 
     end
