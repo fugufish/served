@@ -152,10 +152,6 @@ module Served
         true
       end
 
-      def dump
-        self.class.serializer.dump(self, attributes)
-      end
-
       private
 
       def get(params={})

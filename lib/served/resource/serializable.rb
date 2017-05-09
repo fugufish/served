@@ -80,8 +80,12 @@ module Served
 
       end
 
+      def to_json(*args)
+        dump
+      end
+
       def dump
-        self.class.serializer.dump(attributes)
+        self.class.serializer.dump(self, attributes)
       end
 
       def load(string)

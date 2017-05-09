@@ -10,7 +10,8 @@ module Served
       end
 
       def self.dump(resource, attributes)
-        {resource.resource_name.singularize => attributes.to_json}
+        a = Hash[attributes.collect { |k,v| v.blank? ? nil : [k,v] }.compact]
+        {resource.resource_name.singularize => a}.to_json
       end
 
       def self.exception(data)
