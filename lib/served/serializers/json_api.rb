@@ -2,7 +2,7 @@ module Served
   module Serializers
     module JsonApi
 
-      def serialize_response(data)
+      def self.load(resource, response)
         data = JSON.parse(response.body)['data']
         data = normalize_keys(data)
         attributes = restructure_json(data)
@@ -10,11 +10,11 @@ module Served
         attributes
       end
 
-      def serialize_resource
+      def self.dump(resource, attributes)
         attributes.to_json
       end
 
-      def serialize_error(data)
+      def self.exception(resource, response)
         data = JSON.parse(response.body)['data']
         errors = data['errors']
         if errors.length == 1
@@ -25,6 +25,7 @@ module Served
              exception: 'Multiple Errors were received from the resource',
              errors: errors.collect { |e| serialize_individual_error(e) }
           }
+        end
       end
 
       private
