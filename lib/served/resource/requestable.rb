@@ -152,6 +152,10 @@ module Served
         true
       end
 
+      def dump
+        self.class.serializer.dump(self, attributes)
+      end
+
       private
 
       def get(params={})
@@ -159,13 +163,11 @@ module Served
       end
 
       def put(params={})
-        body = to_json
-        handle_response(client.put(resource_name, id, body, params))
+        handle_response(client.put(resource_name, id, dump, params))
       end
 
       def post(params={})
-        body = to_json
-        handle_response(client.post(resource_name, body, params))
+        handle_response(client.post(resource_name, dump, params))
       end
 
       def delete(params={})
