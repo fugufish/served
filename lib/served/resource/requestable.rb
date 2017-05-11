@@ -113,14 +113,16 @@ module Served
         end
 
         def all(params = {})
-          client.get(resource_name, nil, params).map do |resource_json|
-            new(resource_json)
-          end
+          get(nil, params)
         end
 
         # @return [Served::HTTPClient] the HTTPClient using the configured backend
         def client
           @client ||= Served::HTTPClient.new(self)
+        end
+
+        def get(id, params = {})
+          handle_response(client.get(resource_name, id, params))
         end
       end
 
@@ -141,7 +143,7 @@ module Served
       #
       # @return [self] self
       def reload(params = {})
-        reload_with_attributes(get(params))
+        reload_with_attributes(self.class.get(id, params))
         self
       end
 
@@ -160,8 +162,8 @@ module Served
 
       private
 
-      def get(params={})
-        handle_response(client.get(resource_name, id, params))
+      def get(params = {})
+        self.class.get(id, params)
       end
 
       def put(params={})
