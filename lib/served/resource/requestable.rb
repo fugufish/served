@@ -39,6 +39,10 @@ module Served
           '{/resource*}{/id}.json{?query*}'
         end
 
+        class_configurable :raise_on_exceptions do
+          true
+        end
+
         handle((200..201), :load)
         handle([204, 202]) { attributes }
 
@@ -63,16 +67,21 @@ module Served
       module ClassMethods
 
         def handle_response(response)
-          handler = handlers[response.code]
-          if handler.is_a? Proc
-            result = handler.call(response.body)
+          if raise_on_exceptions
+            handler = handlers[response.code]
+            if handler.is_a? Proc
+              result = handler.call(response)
+            else
+              result = send(handler, response)
+            end
+            if result.is_a?(HttpError)
+              raise result.new(self, response)
+              result = Served::JsonApiError::Errors.new(response)
+            end
+            result
           else
-            result = send(handler, response.body)
+            serializer.load(self, response)
           end
-          if result.respond_to?(:ancestors) && result.ancestors.include?(HttpError)
-            raise result.new(self, response)
-          end
-          result
         end
 
         # Sets individual handlers for response codes, accepts a proc or a symbol representing a method
@@ -185,11 +194,9 @@ module Served
         self.class.client
       end
 
-
       def handle_response(response)
         self.class.handle_response(response)
       end
-
     end
   end
 end
