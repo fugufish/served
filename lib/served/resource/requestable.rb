@@ -122,7 +122,7 @@ module Served
         end
 
         def all(params = {})
-          get(nil, params)
+          get(nil, params).map { |resource| new(resource) }
         end
 
         # @return [Served::HTTPClient] the HTTPClient using the configured backend
