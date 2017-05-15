@@ -166,7 +166,6 @@ module Served
         return result if result.is_a?(TrueClass)
 
         reload_with_attributes(result)
-        true
       end
 
       private
