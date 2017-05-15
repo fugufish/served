@@ -152,7 +152,7 @@ module Served
       #
       # @return [self] self
       def reload(params = {})
-        reload_with_attributes(self.class.get(id, params))
+        reload_with_attributes(get(params))
         self
       end
 
