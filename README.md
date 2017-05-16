@@ -24,6 +24,7 @@ Served.configure do |config|
    config.timeout = 100
    
    config.backend = :patron
+   config.serializer = Served::Serializers::Json
 end
 ```
 
@@ -96,6 +97,37 @@ class SomeService::SomeResource < Served::Resource::Base
 end
 ```
 
+## JsonAPI 
+
+Served does support JSON API responses and comes with a dedicated serializer. Nested resources are supported as well. 
+By default `Served` is raising exceptions on error.
+
+```ruby
+class JsonApiResource < Served::Resource::Base
+  def self.serializer
+    Served::Serializers::JsonApi
+  end
+
+  def self.raise_on_exceptions
+    false
+  end
+end
+
+class PeopleResource < JsonApiResource
+  attribute :name
+  resource_name 'friends'
+end
+
+class ServiceResource < JsonApiResource
+  attribute :id
+  attribute :first_name, presence: true
+  attribute :friends, serialize: PeopleResource, default: []
+
+  resource_name 'service_resource'
+end
+```
+
+
 ## Validations
 `Served::Resource::Base` includes `AciveModel::Validations` and supports all validation methods with the exception of 
 `Uniquness`. As a shotcut validations can be passed to the `#attribute` method much in the same way as it can be passed 
@@ -138,3 +170,16 @@ Served follows resourceful standards. When a resource is initially saved a **POS
 to the service. When the resource already exists, a **PUT** request will be sent. Served determines if
 a resource is new or not based on the presence of an id.
 
+### Service Errors
+
+If the service returns an error, by default an error is thrown. If you want it to behave more like AR where you get 
+validation errors and a `save` returns `true` or `false`, you can configure that.
+ 
+
+```ruby
+class JsonApiResource < Served::Resource::Base
+  def self.raise_on_exceptions
+    false
+  end
+end
+``` 
