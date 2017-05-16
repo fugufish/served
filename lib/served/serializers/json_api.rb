@@ -7,10 +7,11 @@ module Served
       def self.load(_resource, response)
         if (200..299).cover?(response.code)
           data = JSON.parse(response.body)['data']
+          included = JSON.parse(response.body)['included']
           if data.is_a?(Array)
-            data.map { |d| normalize_and_restructure(d) }
+            data.map { |d| normalize_and_restructure(d, included) }
           else
-            normalize_and_restructure(data)
+            normalize_and_restructure(data, included)
           end
         else
           Served::JsonApiError::Errors.new(response)
@@ -34,10 +35,10 @@ module Served
         error.detail || error.title || 'Error, but no error message found'
       end
 
-      def self.normalize_and_restructure(data)
+      def self.normalize_and_restructure(data, included)
         data = normalize_keys(data)
         attributes = restructure_json(data)
-        merge_relationships(attributes, data) if data['relationships']
+        merge_relationships(attributes, data, included) if data['relationships']
         attributes
       end
 
@@ -65,16 +66,16 @@ module Served
         }
       end
 
-      def self.merge_relationships(restructured, data)
+      def self.merge_relationships(restructured, data, included)
         data['relationships'].keys.each do |relationship|
           rel = data['relationships'][relationship]
           next unless rel && rel['data']
           rel_data = rel['data']
 
           relationship_attributes = if rel_data.is_a?(Array)
-                                      rel_data.inject([]) { |ary, r| ary << restructure_json(r) }
+                                      rel_data.inject([]) { |ary, r| ary << restructure_relationship(r, included) }
                                     else
-                                      restructure_json(rel_data)
+                                      restructure_relationship(rel_data, included)
                                     end
           restructured.merge!(relationship => relationship_attributes)
         end
@@ -84,6 +85,11 @@ module Served
       # Restructure JSON API structure into parseable hash
       def self.restructure_json(data)
         data['attributes'].merge('id' => data['id'])
+      end
+
+      def self.restructure_relationship(resource, included)
+        relationship = included.find {|r| resource['id'] == r['id'] && resource['type'] == r['type']}
+        relationship['attributes'].merge('id' => resource['id']) if relationship
       end
     end
   end

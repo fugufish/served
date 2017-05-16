@@ -359,15 +359,21 @@ describe Served::Resource::Base do
               addresses: {
                 data: {
                   id: 1,
-                  type: 'addresses',
-                  attributes: {
-                    street: 'Broadway',
-                    city: 'New York'
-                  }
+                  type: 'addresses'
                 }
               }
             }
-          }
+          },
+          included: [
+            {
+              id: 1,
+              type: 'addresses',
+              attributes: {
+                street: 'Broadway',
+                city: 'New York'
+              }
+            }
+          ]
         }
       end
 
@@ -393,19 +399,11 @@ describe Served::Resource::Base do
                 data: [
                   {
                     id: 1,
-                    type: 'addresses',
-                    attributes: {
-                      street: 'Broadway',
-                      city: 'New York'
-                    }
+                    type: 'addresses'
                   },
                   {
                     id: 2,
-                    type: 'addresses',
-                    attributes: {
-                      street: 'Main St',
-                      city: 'Baltimore'
-                    }
+                    type: 'addresses'
                   }
                 ]
               },
@@ -413,15 +411,37 @@ describe Served::Resource::Base do
                 data: [
                   {
                     id: 1,
-                    type: 'people',
-                    attributes: {
-                      name: 'Ruby'
-                    }
+                    type: 'people'
                   }
                 ]
               }
             }
-          }
+          },
+          included: [
+            {
+              id: 1,
+              type: 'people',
+              attributes: {
+                name: 'Ruby'
+              }
+            },
+            {
+              id: 1,
+              type: 'addresses',
+              attributes: {
+                street: 'Broadway',
+                city: 'New York'
+              }
+            },
+            {
+              id: 2,
+              type: 'addresses',
+              attributes: {
+                street: 'Main St',
+                city: 'Baltimore'
+              }
+            }
+          ]
         }
       end
 
