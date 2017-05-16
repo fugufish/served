@@ -140,12 +140,7 @@ module Served
       #
       # @return [Boolean] returns true or false depending on save success
       def save
-        if id
-          reload_with_attributes(put)
-        else
-          reload_with_attributes(post)
-        end
-        true
+        id ? reload_with_attributes(put) : reload_with_attributes(post)
       end
 
       # Reloads the resource using attributes from the service
