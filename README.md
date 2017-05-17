@@ -104,9 +104,7 @@ By default `Served` is raising exceptions on error.
 
 ```ruby
 class JsonApiResource < Served::Resource::Base
-  def self.serializer
-    Served::Serializers::JsonApi
-  end
+  serializer Served::Serializers::JsonApi
 
   def self.raise_on_exceptions
     false

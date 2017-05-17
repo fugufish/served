@@ -3,9 +3,7 @@
 require 'spec_helper'
 
 class JsonApiResource < Served::Resource::Base
-  def self.serializer
-    Served::Serializers::JsonApi
-  end
+  serializer Served::Serializers::JsonApi
 
   def self.raise_on_exceptions
     false
