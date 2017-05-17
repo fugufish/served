@@ -152,7 +152,7 @@ describe Served::Resource::Base do
       let(:error) do
         { errors: [
           {
-            json_api_error: 'Invalid request'
+            json_api: 'Invalid request'
           }
         ] }
       end

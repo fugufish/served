@@ -14,7 +14,7 @@ module Served
             normalize_and_restructure(data, included)
           end
         else
-          Served::JsonApiError::Errors.new(response)
+          Served::Serializers::JsonApi::Errors.new(response)
         end
       end
 
@@ -59,7 +59,7 @@ module Served
 
       def self.serialize_individual_error(error)
         {
-          json_api_error: error[:title],
+          json_api: error[:title],
           exception: error[:detail],
           backtrace: error[:source],
           code: error[:code]

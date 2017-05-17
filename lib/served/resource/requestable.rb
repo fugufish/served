@@ -76,7 +76,7 @@ module Served
             end
             if result.is_a?(HttpError)
               raise result.new(self, response)
-              result = Served::JsonApiError::Errors.new(response)
+              result = Served::Serializers::JsonApi::Errors.new(response)
             end
             result
           else
