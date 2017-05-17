@@ -479,4 +479,36 @@ describe Served::Resource::Base do
       end
     end
   end
+
+  describe '#save! raising exceptions' do
+    let(:client) { double(post: response) }
+    let(:response) { double(body: error.to_json, code: 422) }
+
+    before do
+      allow(subject).to receive(:client).and_return client
+    end
+
+    subject { ServiceResource.new(first_name: 'A') }
+
+    context 'post returns a 422' do
+      let(:error) do
+        {
+          errors: [
+            {
+              status: 422,
+              title: 'Invalid Attribute',
+              source: { pointer: '/data/attributes/first_name' },
+              detail: 'must contain at least three characters.'
+            }
+          ]
+        }
+      end
+
+      it 'will raise an exception' do
+        expect do
+          subject.save!
+        end.to raise_exception Served::Resource::ResourceInvalid
+      end
+    end
+  end
 end
