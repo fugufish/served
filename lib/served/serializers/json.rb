@@ -5,7 +5,8 @@ module Served
     # The default serializer assumes that the default Rails API response is used for both data and errors.
     module Json
 
-      def self.load(resource, data)
+      def self.load(resource, response)
+        data = response.body
         JSON.parse(data)[resource.resource_name.singularize]
       end
 
