@@ -21,6 +21,7 @@ describe Served::Resource::Serializable do
       attribute :boolean, serialize: Boolean
       attribute :attr,    serialize: Class.new(Served::Attribute::Base) { attribute :test }
       attribute :arry,    serialize: Class.new(Served::Attribute::Base) { attribute :test }
+      attribute :null,    serialize: Integer
 
     end
   end
@@ -40,8 +41,13 @@ describe Served::Resource::Serializable do
         float: '0.1',
         boolean: 'false',
         attr: { test: 'string' },
-        arry: [{ test: 'string' }, { test: 'another string' }]
+        arry: [{ test: 'string' }, { test: 'another string' }],
+        null: nil
       }
+    end
+
+    it 'returns nil if it cannot convert' do
+      expect { subject.from_hash(hash)[:null].to eq(nil) }
     end
 
     it 'loads the data in the given string using the provided serializer' do
