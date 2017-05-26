@@ -4,9 +4,6 @@ describe Served::Resource::Attributable do
     Class.new do
       include Served::Resource::Attributable
 
-      def initialize(*args)
-      end
-
     end
   end
 

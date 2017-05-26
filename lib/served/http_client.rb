@@ -1,4 +1,5 @@
 require 'addressable/template'
+require_relative 'error'
 module Served
   # Provides an interface between the HTTP client and the Resource.
   class HTTPClient
@@ -10,10 +11,10 @@ module Served
     delegate :get, :put, :delete, :post, to: :@backend
     delegate :headers, :timeout, :host,  to: :@resource
 
-    class ConnectionFailed < StandardError
+    class ConnectionFailed < Served::Error
 
         def initialize(resource)
-          super "Resource #{resource.name} could not be reached on #{resource.host}"
+          super "Resource '#{resource.name}' could not be reached on '#{resource.host}'"
         end
 
       end

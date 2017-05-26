@@ -1,3 +1,6 @@
+require_relative 'response_invalid'
+require_relative 'invalid_attribute_serializer'
+
 module Served
   module Resource
     module Serializable
@@ -9,76 +12,83 @@ module Served
         end
       end
 
-      # Specialized class serializers
-      SERIALIZERS = {
-          Fixnum => {call: :to_i},
-          String => {call: :to_s},
-          Symbol => {call: :to_sym, converter: -> (value) {
-            if value.is_a? Array
-              value = value.map { |a| a.to_sym }
-              return value
-            end
-          }},
-          Float => {call: :to_f},
-          Boolean => {converter: -> (value) {
-            return false unless value == "true"
-            true
-          }}
-      }
-
       included do
+        include Configurable
         include Attributable
-        prepend Prepend
-      end
 
-      class InvalidPresenter < StandardError
-      end
-
-      module Prepend
-
-        def set_attribute(name, value)
-          return unless self.class.attributes[name]
-          if serializer = self.class.attributes[name][:serialize]
-            if serializer.is_a? Proc
-              value = serializer.call(value)
-            elsif s = SERIALIZERS[serializer]
-              called = false
-              if s[:call] && value.respond_to?(s[:call])
-                value = value.send(s[:call])
-                called = true
-              end
-              value = s[:converter].call(value) if s[:converter] && !called
-            else
-              value = serializer.new(value)
-            end
-          end
-          super
-        end
-
+        class_configurable :serializer, default: Served.config.serializer
+        class_configurable :use_root_node, default: Served.config.use_root_node
       end
 
       module ClassMethods
 
+        def load(string)
+          begin
+            result = serializer.load(self, string)
+          rescue => e
+            raise ResponseInvalid.new(self, e)
+          end
+          raise ResponseInvalid.new(self) unless result
+          result
+        end
+
+        def from_hash(hash)
+          hash.each do |name, value|
+            hash[name] = serialize_attribute(name, value)
+          end
+          hash.symbolize_keys
+        end
+
         private
 
-        def serializer_for_attribute(attr, serializer)
-          attributes[attr][:serializer] = serializer
+        def attribute_serializer_for(type)
+          # case statement wont work here because of how it does class matching
+          return ->(v) { return v }              unless type # nil
+          return ->(v) { return v.try(:to_i)   } if type == Integer || type == Fixnum
+          return ->(v) { return v.try(:to_s)   } if type == String
+          return ->(v) { return v.try(:to_sym) } if type == Symbol
+          return ->(v) { return v.try(:to_f)   } if type == Float
+          if type == Boolean
+            return lambda do |v|
+              return false unless v == "true"
+              true
+            end
+          end
+          return ->(v) { type.new(v) } if type.ancestors.include?(Served::Resource::Base) ||
+                                          type.ancestors.include?(Served::Attribute::Base)
+          raise InvalidAttributeSerializer, type
+        end
+
+        def serialize_attribute(attr, value)
+          return false unless attributes[attr.to_sym]
+          serializer = attribute_serializer_for(attributes[attr.to_sym][:serialize])
+          if value.is_a? Array
+            return value unless attributes[attr.to_sym][:serialize]
+            value.collect do |v|
+              if v.is_a? attributes[attr.to_sym][:serialize]
+                v
+              else
+                serializer.call(v)
+              end
+            end
+          else
+            serializer.call(value)
+          end
         end
 
       end
 
-      # renders the model as json
       def to_json(*args)
-        raise InvalidPresenter, 'Presenter must respond to #to_json' unless presenter.respond_to? :to_json
-        presenter.to_json
+        dump
       end
 
-      # override this to return a presenter to be used for serialization, otherwise all attributes will be
-      # serialized
-      def presenter
-        attributes
+      def dump
+        self.class.serializer.dump(self, attributes)
       end
 
+      def load(string)
+        self.class.serializer.load(string)
+      end
     end
   end
 end

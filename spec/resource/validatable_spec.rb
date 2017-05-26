@@ -3,17 +3,24 @@ describe Served::Resource::Validatable do
   subject do
     Class.new do
       include Served::Resource::Validatable
+      include Served::Resource::Serializable
       attribute :presence,     presence: true
       attribute :numericality, numericality: true
       attribute :format,       format: /[a-z]+/
       attribute :inclusion,    inclusion: { in: %w{foo bar}}
+      attribute :nested,       presence: true,
+                serialize: Class.new(Served::Attribute::Base) {
+                  attribute :test, presence: true
+
+                  def self.name
+                    'Nested'
+                  end
+                }
 
       def self.name
         "TheClass"
       end
 
-      def initialize(*args)
-      end
     end
   end
 
@@ -53,6 +60,12 @@ describe Served::Resource::Validatable do
       instance = subject.new(inclusion: 'a')
       instance.valid?
       expect(instance.errors[:inclusion]).to_not be_empty
+    end
+
+    it 'should validate nested attributes' do
+      instance = subject.new(nested: { test: 'foo'} )
+      instance.valid?
+      expect(instance.errors[:nested]).to be_empty
     end
 
   end

@@ -12,16 +12,9 @@ module Served
           :inclusion,
       ]
 
-      class ResourceInvalid < StandardError
-
-        def initialize(resource)
-          super "[#{resource.errors.full_messages.join(', ')}]"
-        end
-      end
-
-      # Saves a resource and raises an error if the save fails.
+       # Saves a resource and raises an error if the save fails.
       def save!
-        raise ResourceInvalid.new(self) unless run_validations! && save(false)
+        raise ::Served::Resource::ResourceInvalid.new(self) unless run_validations! && save(false)
         true
       end
 
