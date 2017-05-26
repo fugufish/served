@@ -4,6 +4,7 @@ module Served
       attr_reader :message
       attr_reader :server_backtrace
       attr_reader :errors
+      attr_reader :response
 
       # Defined in individual error classes
       def self.code
@@ -18,6 +19,7 @@ module Served
           @message          = serialized[:exception]
           @server_backtrace = serialized[:backtrace]
           @code             = serialized[:code]
+          @response         = OpenStruct.new(serialized) # TODO: remove in served 1.0, used for backwards compat
 
           super("An error '#{code} #{message}' occurred while making this request")
         end
