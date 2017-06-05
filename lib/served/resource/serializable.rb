@@ -28,7 +28,6 @@ module Served
           begin
             result = serializer.load(self, string)
           rescue => e
-            binding.pry
             raise ResponseInvalid.new(self, e)
           end
           raise ResponseInvalid.new(self) unless result
