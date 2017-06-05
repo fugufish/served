@@ -8,4 +8,6 @@
 /spec/reports/
 /tmp/
 *.iml
-.idea/**
+.idea/**.rvmrc
+.rvmrc
+.idea/

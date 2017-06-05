@@ -16,10 +16,8 @@ module Served
         include Configurable
         include Attributable
 
-        class_configurable :serializer
+        class_configurable :serializer, default: Served.config.serializer
         class_configurable :use_root_node, default: Served.config.use_root_node
-
-        serializer Served.config.serializer
       end
 
       module ClassMethods
@@ -92,8 +90,6 @@ module Served
       def load(string)
         self.class.serializer.load(string)
       end
-
-
     end
   end
 end

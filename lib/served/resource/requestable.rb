@@ -39,6 +39,10 @@ module Served
           '{/resource*}{/id}.json{?query*}'
         end
 
+        class_configurable :raise_on_exceptions do
+          true
+        end
+
         handle((200..201), :load)
         handle([204, 202]) { attributes }
 
@@ -63,16 +67,21 @@ module Served
       module ClassMethods
 
         def handle_response(response)
-          handler = handlers[response.code]
-          if handler.is_a? Proc
-            result = handler.call(response.body)
+          if raise_on_exceptions
+            handler = handlers[response.code]
+            if handler.is_a? Proc
+              result = handler.call(response)
+            else
+              result = send(handler, response)
+            end
+            if result.is_a?(HttpError)
+              raise result.new(self, response)
+              result = Served::Serializers::JsonApi::Errors.new(response)
+            end
+            result
           else
-            result = send(handler, response.body)
+            serializer.load(self, response)
           end
-          if result.respond_to?(:ancestors) && result.ancestors.include?(HttpError)
-            raise result.new(self, response)
-          end
-          result
         end
 
         # Sets individual handlers for response codes, accepts a proc or a symbol representing a method
@@ -107,14 +116,22 @@ module Served
         #
         # @param id [Integer] the id of the resource
         # @return [Resource::Base] the resource object.
-        def find(id)
+        def find(id, params = {})
           instance = new(id: id)
-          instance.reload
+          instance.reload(params)
+        end
+
+        def all(params = {})
+          get(nil, params).map { |resource| new(resource) }
         end
 
         # @return [Served::HTTPClient] the HTTPClient using the configured backend
         def client
           @client ||= Served::HTTPClient.new(self)
+        end
+
+        def get(id, params = {})
+          handle_response(client.get(resource_name, id, params))
         end
       end
 
@@ -123,19 +140,14 @@ module Served
       #
       # @return [Boolean] returns true or false depending on save success
       def save
-        if id
-          reload_with_attributes(put)
-        else
-          reload_with_attributes(post)
-        end
-        true
+        id ? reload_with_attributes(put) : reload_with_attributes(post)
       end
 
       # Reloads the resource using attributes from the service
       #
       # @return [self] self
-      def reload
-        reload_with_attributes(get)
+      def reload(params = {})
+        reload_with_attributes(get(params))
         self
       end
 
@@ -149,13 +161,12 @@ module Served
         return result if result.is_a?(TrueClass)
 
         reload_with_attributes(result)
-        true
       end
 
       private
 
-      def get(params={})
-        handle_response(client.get(resource_name, id, params))
+      def get(params = {})
+        self.class.get(id, params)
       end
 
       def put(params={})
@@ -177,11 +188,9 @@ module Served
         self.class.client
       end
 
-
       def handle_response(response)
         self.class.handle_response(response)
       end
-
     end
   end
 end
