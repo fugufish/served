@@ -52,7 +52,8 @@ module Served
       end
 
       def initialize(hash={})
-        reload_with_attributes(hash)
+        reload_with_attributes(normalize_keys(hash) )
+        self
       end
 
       # @return [Array] the keys for all the defined attributes
@@ -62,12 +63,22 @@ module Served
 
       private
 
-      def reload_with_attributes(attributes)
-        attributes = self.class.from_hash(attributes)
-        attributes.each do |name, value|
-          set_attribute(name.to_sym, value)
+      # Reloads the instance with the new attributes
+      # If result is an Errors object it will create validation errors on the instance
+      # @return [Boolean]
+      def reload_with_attributes(result)
+        if result.is_a?(Served::Error)
+          serializer.parse_errors(result, self)
+          set_attribute_defaults
+          false
+        else
+          attributes = self.class.from_hash(result)
+          attributes.each do |name, value|
+            set_attribute(name.to_sym, value)
+          end
+          set_attribute_defaults
+          true
         end
-        set_attribute_defaults
       end
 
       def set_attribute_defaults
@@ -81,7 +92,17 @@ module Served
         instance_variable_set("@#{name}", value)
       end
 
-    end
+      def normalize_keys(params)
+        case params
+        when Hash
+          Hash[params.map { |k, v| [k.to_s.tr('-', '_'), normalize_keys(v)] }]
+        when Array
+          params.map { |v| normalize_keys(v) }
+        else
+          params
+        end
+      end
 
+    end
   end
 end

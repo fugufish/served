@@ -13,4 +13,5 @@ require 'served/resource'
 require 'served/attribute'
 require 'served/serializers'
 
-
+require 'served/serializers/json_api/error'
+require 'served/serializers/json_api/errors'

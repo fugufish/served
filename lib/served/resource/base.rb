@@ -3,6 +3,7 @@ require_relative 'serializable'
 require_relative 'validatable'
 require_relative 'requestable'
 require_relative 'configurable'
+require_relative 'resource_invalid'
 
 require_relative 'http_errors'
 
