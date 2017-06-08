@@ -72,11 +72,11 @@ module Served
             if handler.is_a? Proc
               result = handler.call(response)
             else
-              result = send(handler, response)
+              result = send(handler, response.body)
             end
-            if result.is_a?(HttpError)
+
+            if result.respond_to?(:ancestors) && result.ancestors.include?(HttpError)
               raise result.new(self, response)
-              result = Served::Serializers::JsonApi::Errors.new(response)
             end
             result
           else
