@@ -50,7 +50,7 @@ module Served
           return ->(v) { return v.try(:to_f)   } if type == Float
           if type == Boolean
             return lambda do |v|
-              return false unless v == "true"
+              return false unless v == "true" || v.is_a?(TrueClass)
               true
             end
           end
