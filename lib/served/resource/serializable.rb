@@ -33,6 +33,7 @@ module Served
         end
 
         def from_hash(hash)
+          hash = hash.clone
           hash.each do |name, value|
             hash[name] = serialize_attribute(name, value)
           end
