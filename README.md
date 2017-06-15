@@ -33,7 +33,7 @@ Served models derive their hostname by mapping their parent module to the `Serve
 example, `SomeService::SomeResource` would look up its host configuration at 
 `Served.config.hosts['some_service']`.
 
-The host configuration accepts an (Addressable)[https://github.com/sporkmonger/addressable] template mapping
+The host configuration accepts an [Addressable](https://github.com/sporkmonger/addressable) template mapping
 `resource` as the resource name (derived from the model name) and `query` as the params. For example:
 
 ```
