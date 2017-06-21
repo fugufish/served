@@ -19,14 +19,14 @@ describe Served::Resource::Serializable do
       attribute :symbol,  serialize: Symbol
       attribute :float,   serialize: Float
       attribute :boolean, serialize: Boolean
+      attribute :true_bool, serialize: Boolean
+      attribute :false_bool, serialize: Boolean
       attribute :attr,    serialize: Class.new(Served::Attribute::Base) { attribute :test }
       attribute :arry,    serialize: Class.new(Served::Attribute::Base) { attribute :test }
       attribute :null,    serialize: Integer
 
     end
   end
-
-
 
   it 'sets the default serializer to json' do
     expect(subject.serializer).to eq(Served::Serializers::Json)
@@ -40,6 +40,8 @@ describe Served::Resource::Serializable do
         symbol: 'foo',
         float: '0.1',
         boolean: 'false',
+        true_bool: true,
+        false_bool: false,
         attr: { test: 'string' },
         arry: [{ test: 'string' }, { test: 'another string' }],
         null: nil
@@ -48,6 +50,13 @@ describe Served::Resource::Serializable do
 
     it 'returns nil if it cannot convert' do
       expect { subject.from_hash(hash)[:null].to eq(nil) }
+    end
+
+    it 'loads booleans' do
+      expect(subject.from_hash(hash)[:boolean]).to eq(false)
+      expect(subject.from_hash(hash)[:true_bool]).to eq(true)
+      expect(subject.from_hash(hash)[:boolean]).to eq(false)
+
     end
 
     it 'loads the data in the given string using the provided serializer' do
