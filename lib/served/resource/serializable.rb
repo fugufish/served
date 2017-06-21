@@ -33,6 +33,7 @@ module Served
         end
 
         def from_hash(hash)
+          hash = hash.clone
           hash.each do |name, value|
             hash[name] = serialize_attribute(name, value)
           end
@@ -51,7 +52,7 @@ module Served
           return ->(v) { return v.try(:to_a)   } if type == Array
           if type == Boolean
             return lambda do |v|
-              return false unless v == "true"
+              return false unless v == "true" || v.is_a?(TrueClass)
               true
             end
           end
