@@ -65,7 +65,8 @@ module Served
           return false unless attributes[attr.to_sym]
           serializer = attribute_serializer_for(attributes[attr.to_sym][:serialize])
           if value.is_a? Array
-            return value unless attributes[attr.to_sym][:serialize]
+            # TODO: Remove the Array class check below in 1.0, only here for backwards compatibility
+            return value if attributes[attr.to_sym][:serialize].nil? || attributes[attr.to_sym][:serialize] == Array
             value.collect do |v|
               if v.is_a? attributes[attr.to_sym][:serialize]
                 v
