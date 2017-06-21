@@ -49,6 +49,7 @@ module Served
           return ->(v) { return v.try(:to_s)   } if type == String
           return ->(v) { return v.try(:to_sym) } if type == Symbol
           return ->(v) { return v.try(:to_f)   } if type == Float
+          return ->(v) { return v.try(:to_a)   } if type == Array
           if type == Boolean
             return lambda do |v|
               return false unless v == "true" || v.is_a?(TrueClass)
@@ -64,7 +65,8 @@ module Served
           return false unless attributes[attr.to_sym]
           serializer = attribute_serializer_for(attributes[attr.to_sym][:serialize])
           if value.is_a? Array
-            return value unless attributes[attr.to_sym][:serialize]
+            # TODO: Remove the Array class check below in 1.0, only here for backwards compatibility
+            return value if attributes[attr.to_sym][:serialize].nil? || attributes[attr.to_sym][:serialize] == Array
             value.collect do |v|
               if v.is_a? attributes[attr.to_sym][:serialize]
                 v

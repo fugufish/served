@@ -24,6 +24,7 @@ describe Served::Resource::Serializable do
       attribute :attr,    serialize: Class.new(Served::Attribute::Base) { attribute :test }
       attribute :arry,    serialize: Class.new(Served::Attribute::Base) { attribute :test }
       attribute :null,    serialize: Integer
+      attribute :bsc_ary, serialize: Array
 
     end
   end
@@ -44,8 +45,13 @@ describe Served::Resource::Serializable do
         false_bool: false,
         attr: { test: 'string' },
         arry: [{ test: 'string' }, { test: 'another string' }],
+        bsc_ary: [1, 2, 3],
         null: nil
       }
+    end
+
+    it "doesn't fail to serialize an array when specified (backward compat)" do
+      expect(subject.from_hash(hash)[:bsc_ary]).to eq([1, 2, 3])
     end
 
     it 'returns nil if it cannot convert' do
