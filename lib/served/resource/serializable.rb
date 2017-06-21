@@ -48,6 +48,7 @@ module Served
           return ->(v) { return v.try(:to_s)   } if type == String
           return ->(v) { return v.try(:to_sym) } if type == Symbol
           return ->(v) { return v.try(:to_f)   } if type == Float
+          return ->(v) { return v.try(:to_a)   } if type == Array
           if type == Boolean
             return lambda do |v|
               return false unless v == "true"

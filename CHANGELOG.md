@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.2
+* fixes edge case where TrueClass is passed in intead of a string to a `Boolean` serialized attribute
+* fix regression with Array serializer
+
+## 0.3.1
+* fixes regression in error handling
+
 ## 0.3.0
 * Added Serializers feature, ability to define different methods of serializing resource response
 * New error handling, will report different errors based on response from resource
