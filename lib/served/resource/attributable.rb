@@ -9,7 +9,6 @@ module Served
       end
 
       module ClassMethods
-
         # declare an attribute for the resource
         #
         # @example
@@ -18,7 +17,7 @@ module Served
         #   end
         #
         # @param name [Symbol] the name of the attribute
-        def attribute(name, options={})
+        def attribute(name, options = {})
           return if attributes.include?(name)
           attributes[name] = options
           attr_accessor name
@@ -39,20 +38,17 @@ module Served
         end
 
         module Prepend
-
           def inherited(subclass)
-            self.attributes.each do |name, options|
+            attributes.each do |name, options|
               subclass.attribute name, options
             end
             super
           end
-
         end
-
       end
 
-      def initialize(hash={})
-        reload_with_attributes(normalize_keys(hash) )
+      def initialize(hash = {})
+        reload_with_attributes(normalize_keys(hash))
         self
       end
 
@@ -102,7 +98,6 @@ module Served
           params
         end
       end
-
     end
   end
 end

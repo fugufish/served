@@ -20,7 +20,8 @@ module Served
 
       def self.parse_errors(result, resource)
         result.each do |error|
-          if error.source_parameter && resource.attributes.keys.include?(error.source_parameter.to_sym)
+          if error.source_parameter &&
+              resource.attributes.keys.include?(error.source_parameter.to_sym)
             resource.errors.add(error.source_parameter.to_sym, error_message(error))
           else
             resource.errors.add(:base, error_message(error))
@@ -73,7 +74,9 @@ module Served
           rel_data = rel['data']
 
           relationship_attributes = if rel_data.is_a?(Array)
-                                      rel_data.inject([]) { |ary, r| ary << restructure_relationship(r, included) }
+                                      rel_data.inject([]) do |ary, r|
+                                        ary << restructure_relationship(r, included)
+                                      end
                                     else
                                       restructure_relationship(rel_data, included)
                                     end
@@ -88,7 +91,10 @@ module Served
       end
 
       def self.restructure_relationship(resource, included)
-        relationship = included.find {|r| resource['id'] == r['id'] && resource['type'] == r['type']}
+        relationship = included.find do |r|
+          resource['id'] == r['id'] && resource['type'] == r['type']
+        end
+
         relationship['attributes'].merge('id' => resource['id']) if relationship
       end
     end

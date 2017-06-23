@@ -1,7 +1,6 @@
 require_relative 'backends/base'
 module Served
   module Backends
-
     # @private
     def self.[](backend)
       @backends ||= {
@@ -11,11 +10,10 @@ module Served
       }
       if @backends[backend]
         require_relative "backends/#{backend}"
-        return self.const_get(@backends[backend].classify.to_sym)
+        return const_get(@backends[backend].classify.to_sym)
       end
       require_relative 'backends/httparty'
-      self.const_get(@backends[:httparty].classify.to_sym)
+      const_get(@backends[:httparty].classify.to_sym)
     end
-
   end
 end

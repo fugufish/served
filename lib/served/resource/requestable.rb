@@ -5,14 +5,12 @@ module Served
 
       # raised when a handler is defined if the method doesn't exist or if a proc isn't supplied
       class HandlerRequired < StandardError
-
         def initialize
           super 'a handler is required, it must be a proc or a valid method'
         end
-
       end
 
-      HEADERS = { 'Content-type' => 'application/json', 'Accept' => 'application/json' }
+      HEADERS = { 'Content-type' => 'application/json', 'Accept' => 'application/json' }.freeze
 
       included do
         include Configurable
@@ -30,7 +28,7 @@ module Served
         end
 
         class_configurable :_headers do
-          HEADERS
+          HEADERS.dup
         end
 
         class_configurable :handlers, default: {}
@@ -60,12 +58,9 @@ module Served
         # 500 level errors
         handle(500) { Resource::InternalServerError }
         handle(503) { Resource::BadGateway }
-
-
       end
 
       module ClassMethods
-
         def handle_response(response)
           if raise_on_exceptions
             handler = handlers[response.code]
@@ -91,12 +86,12 @@ module Served
         #   the specific response code has been called. The method or proc should return a hash of attributes, if an
         #   error class is returned it will be raised
         # @yieldreturn [Hash] a hash of attributes, if an error class is returned it will be raised
-        def handle(code_or_range, symbol_or_proc=nil, &block)
+        def handle(code_or_range, symbol_or_proc = nil, &block)
           raise HandlerRequired unless symbol_or_proc || block_given?
           if code_or_range.is_a?(Range) || code_or_range.is_a?(Array)
-            code_or_range.each { |c|
+            code_or_range.each do |c|
               handlers[c] = symbol_or_proc || block
-            }
+            end
           else
             handlers[code_or_range] = symbol_or_proc || block
           end
@@ -106,13 +101,14 @@ module Served
         #
         # @param headers [Hash] the headers to send with each requesat
         # @return headers [Hash] the default headers for the class
-        def headers(h={})
+        def headers(h = {})
           headers ||= _headers
           _headers(headers.merge!(h)) unless h.empty?
           _headers
         end
 
-        # Looks up a resource on the service by id. For example `SomeResource.find(5)` would call `/some_resources/5`
+        # Looks up a resource on the service by id. For example,
+        # `SomeResource.find(5)` would call `/some_resources/5`
         #
         # @param id [Integer] the id of the resource
         # @return [Resource::Base] the resource object.
@@ -135,8 +131,8 @@ module Served
         end
       end
 
-      # Saves the record to the service. Will call POST if the record does not have an id, otherwise will call PUT
-      # to update the record
+      # Saves the record to the service. Will call POST if the record does not
+      # have an id, otherwise will call PUT to update the record
       #
       # @return [Boolean] returns true or false depending on save success
       def save
@@ -169,15 +165,15 @@ module Served
         self.class.get(id, params)
       end
 
-      def put(params={})
+      def put(params = {})
         handle_response(client.put(resource_name, id, dump, params))
       end
 
-      def post(params={})
+      def post(params = {})
         handle_response(client.post(resource_name, dump, params))
       end
 
-      def delete(params={})
+      def delete(params = {})
         response = client.delete(resource_name, id, params)
         return true if response.code == 204
 

@@ -1,4 +1,5 @@
 require_relative 'serializers/json'
+
 module Served
   include ActiveSupport::Configurable
   config_accessor :timeout
@@ -11,5 +12,4 @@ module Served
     config.hosts      = {}
     config.serializer = Served::Serializers::Json
   end
-
 end
