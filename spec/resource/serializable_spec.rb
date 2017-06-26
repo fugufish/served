@@ -116,7 +116,6 @@ describe Served::Resource::Serializable do
   end
 
   context 'with presenter' do
-
     subject do
       Class.new do
         include Served::Resource::Serializable
@@ -129,7 +128,7 @@ describe Served::Resource::Serializable do
             end
 
             def to_json
-              {field: @field}.to_json
+              { field: @field }.to_json
             end
           end.new(field)
         end
@@ -139,6 +138,5 @@ describe Served::Resource::Serializable do
     it 'should serialize using the presenter' do
       expect(subject.to_json).to eq(subject.presenter.to_json)
     end
-
   end
 end
