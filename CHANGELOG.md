@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.3
+* fixes regression where #presenter is not respected
+
 ## 0.3.2
 * fixes edge case where TrueClass is passed in intead of a string to a `Boolean` serialized attribute
 
