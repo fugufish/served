@@ -91,6 +91,10 @@ module Served
       end
 
       def dump
+        if respond_to?(:presenter)
+          warn 'DEPRECATION WARNING: using presenters is deprecated and will be removed in served 1.0'
+          return presenter.to_json
+        end
         self.class.serializer.dump(self, attributes)
       end
 

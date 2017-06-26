@@ -114,4 +114,31 @@ describe Served::Resource::Serializable do
       expect { subject.load('') }.to raise_error(Served::Resource::ResponseInvalid)
     end
   end
+
+  context 'with presenter' do
+
+    subject do
+      Class.new do
+        include Served::Resource::Serializable
+        attribute :field
+
+        def presenter
+          Class.new do
+            def initialize(field)
+              @field = field
+            end
+
+            def to_json
+              {field: @field}.to_json
+            end
+          end.new(field)
+        end
+      end.new(field: 'test')
+    end
+
+    it 'should serialize using the presenter' do
+      expect(subject.to_json).to eq(subject.presenter.to_json)
+    end
+
+  end
 end
