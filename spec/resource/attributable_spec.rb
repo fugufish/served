@@ -3,7 +3,6 @@ describe Served::Resource::Attributable do
   subject do
     Class.new do
       include Served::Resource::Attributable
-
     end
   end
 
@@ -21,7 +20,6 @@ describe Served::Resource::Attributable do
   end
 
   context '#new' do
-
     it 'creates a new instance and assigns the given attributes' do
       subject.attribute :foo
       expect(subject.new(foo: 'bar').foo).to eq 'bar'
@@ -31,7 +29,5 @@ describe Served::Resource::Attributable do
       subject.attribute :foo, default: 'bar'
       expect(subject.new.foo).to eq 'bar'
     end
-
   end
-
 end

@@ -1,11 +1,10 @@
 require 'spec_helper'
 describe Served::Resource::Serializable do
-
-  let!(:attr) {
+  let!(:attr) do
     Class.new(Served::Attribute::Base) do
       attribute :test
     end
-  }
+  end
 
   subject do
     Class.new do
@@ -25,7 +24,6 @@ describe Served::Resource::Serializable do
       attribute :arry,    serialize: Class.new(Served::Attribute::Base) { attribute :test }
       attribute :null,    serialize: Integer
       attribute :bsc_ary, serialize: Array
-
     end
   end
 
@@ -34,7 +32,6 @@ describe Served::Resource::Serializable do
   end
 
   describe '::from_hash' do
-
     let(:hash) do
       { fixnum: '1',
         string: 1,
@@ -46,8 +43,7 @@ describe Served::Resource::Serializable do
         attr: { test: 'string' },
         arry: [{ test: 'string' }, { test: 'another string' }],
         bsc_ary: [1, 2, 3],
-        null: nil
-      }
+        null: nil }
     end
 
     it "doesn't fail to serialize an array when specified (backward compat)" do
@@ -62,7 +58,6 @@ describe Served::Resource::Serializable do
       expect(subject.from_hash(hash)[:boolean]).to eq(false)
       expect(subject.from_hash(hash)[:true_bool]).to eq(true)
       expect(subject.from_hash(hash)[:boolean]).to eq(false)
-
     end
 
     it 'loads the data in the given string using the provided serializer' do
@@ -90,15 +85,13 @@ describe Served::Resource::Serializable do
     end
 
     describe 'invalid attribute serializer' do
-
       subject do
-        class Invalid;end
+        class Invalid; end
         Class.new do
           include Served::Resource::Serializable
-          attribute :invalid,  serialize: Invalid
+          attribute :invalid, serialize: Invalid
 
-          def initialize(*args)
-          end
+          def initialize(*args); end
         end
       end
 
@@ -107,13 +100,10 @@ describe Served::Resource::Serializable do
       it 'raises an invalid attribute serializer exception' do
         expect { subject.from_hash(hash) }.to raise_error(Served::Resource::InvalidAttributeSerializer)
       end
-
     end
-
   end
 
   describe '::load' do
-
     it 'uses the serializer to load the provided string' do
       expect(subject.serializer).to receive(:load).and_return({})
       expect { subject.load('{}') }.to_not raise_exception
@@ -123,11 +113,9 @@ describe Served::Resource::Serializable do
       expect(subject.serializer).to receive(:load).and_raise('An Error')
       expect { subject.load('') }.to raise_error(Served::Resource::ResponseInvalid)
     end
-
   end
 
   context 'with presenter' do
-
     subject do
       Class.new do
         include Served::Resource::Serializable
@@ -140,7 +128,7 @@ describe Served::Resource::Serializable do
             end
 
             def to_json
-              {field: @field}.to_json
+              { field: @field }.to_json
             end
           end.new(field)
         end
@@ -150,7 +138,5 @@ describe Served::Resource::Serializable do
     it 'should serialize using the presenter' do
       expect(subject.to_json).to eq(subject.presenter.to_json)
     end
-
   end
-
 end

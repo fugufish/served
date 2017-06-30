@@ -1,10 +1,10 @@
 require 'addressable/template'
 require_relative 'error'
+
 module Served
   # Provides an interface between the HTTP client and the Resource.
   class HTTPClient
-
-    DEFAULT_TEMPLATE = '{/resource*}{/id}.json{?query*}'
+    DEFAULT_TEMPLATE = '{/resource*}{/id}.json{?query*}'.freeze
 
     attr_reader :template, :resource
 
@@ -12,12 +12,10 @@ module Served
     delegate :headers, :timeout, :host,  to: :@resource
 
     class ConnectionFailed < Served::Error
-
-        def initialize(resource)
-          super "Resource '#{resource.name}' could not be reached on '#{resource.host}'"
-        end
-
+      def initialize(resource)
+        super "Resource '#{resource.name}' could not be reached on '#{resource.host}'"
       end
+    end
 
     def initialize(resource)
       @resource = resource
@@ -25,6 +23,5 @@ module Served
       @template = Addressable::Template.new(h)
       @backend  = Served::Backends[Served.config.backend].new(self)
     end
-
   end
 end
