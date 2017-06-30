@@ -1,0 +1,6 @@
+en:
+  activemodel:
+    errors:
+      models:
+        served/resource/base:
+          inclusion: "'%{value}' is not included in the list" 
