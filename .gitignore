@@ -11,3 +11,5 @@
 .idea/**.rvmrc
 .rvmrc
 .idea/
+.*.swp
+*.gem

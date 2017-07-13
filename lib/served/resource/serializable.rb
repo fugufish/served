@@ -8,7 +8,7 @@ module Served
 
       # pseudo boolean class for serialization
       unless Object.const_defined?(:Boolean)
-        class ::Boolean;
+        class ::Boolean
         end
       end
 
@@ -21,7 +21,6 @@ module Served
       end
 
       module ClassMethods
-
         def load(string)
           begin
             result = serializer.load(self, string)
@@ -56,17 +55,24 @@ module Served
               true
             end
           end
-          return ->(v) { type.new(v) } if type.ancestors.include?(Served::Resource::Base) ||
-                                          type.ancestors.include?(Served::Attribute::Base)
-          raise InvalidAttributeSerializer, type
+
+          if type.ancestors.include?(Served::Resource::Base) ||
+              type.ancestors.include?(Served::Attribute::Base)
+            return ->(v) { type.new(v) }
+          end
+
+          raise InvalidAttributeSerializer.new(type)
         end
 
         def serialize_attribute(attr, value)
           return false unless attributes[attr.to_sym]
           serializer = attribute_serializer_for(attributes[attr.to_sym][:serialize])
           if value.is_a? Array
-            # TODO: Remove the Array class check below in 1.0, only here for backwards compatibility
-            return value if attributes[attr.to_sym][:serialize].nil? || attributes[attr.to_sym][:serialize] == Array
+            # TODO: Remove the Array class check below in 1.0, only here
+            # for backwards compatibility
+            return value if attributes[attr.to_sym][:serialize].nil? ||
+              attributes[attr.to_sym][:serialize] == Array
+
             value.collect do |v|
               if v.is_a? attributes[attr.to_sym][:serialize]
                 v
@@ -78,10 +84,9 @@ module Served
             serializer.call(value)
           end
         end
-
       end
 
-      def to_json(*args)
+      def to_json(*_args)
         dump
       end
 

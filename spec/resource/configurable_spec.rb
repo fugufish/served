@@ -24,23 +24,22 @@ describe Served::Resource::Configurable do
   end
 
   it 'calls a proc if it is passed as default' do
-    subject.send(:class_configurable, :foo, default: Proc.new {'baz'})
+    subject.send(:class_configurable, :foo, default: proc { 'baz' })
     subject.foo
     expect(subject.foo).to eq 'baz'
   end
 
   it 'calls the block if passed' do
-    subject.send(:class_configurable, :foo, &Proc.new { 'baz'})
+    subject.send(:class_configurable, :foo, proc { 'baz' })
     expect(subject.foo).to eq 'baz'
   end
 
   it 'defines an accessible instance method' do
-    subject.send(:class_configurable, :foo, &Proc.new { 'baz'})
+    subject.send(:class_configurable, :foo, proc { 'baz' })
     expect(subject.new.foo).to eq 'baz'
   end
 
   context 'subclass' do
-
     let!(:parent) do
       Class.new do
         include Served::Resource::Configurable
@@ -68,7 +67,5 @@ describe Served::Resource::Configurable do
       expect(subject.foo).to eq 'baz'
       expect(parent.foo).to eq 'bar'
     end
-
   end
-
 end

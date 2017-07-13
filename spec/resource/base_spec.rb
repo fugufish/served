@@ -2,15 +2,14 @@ require 'spec_helper'
 describe Served::Resource::Base do
   let(:test_host) { 'http://testhost:3000' }
 
-  let(:klass) {
-
+  let(:klass) do
     Class.new(Served::Resource::Base) do
       attribute :attr1
       attribute :attr2
       attribute :attr3
 
-      headers({foo: :bar})
-      headers({bar: :baz})
+      headers(foo: :bar)
+      headers(bar: :baz)
 
       def self.name
         'SomeModule::ResourceTest'
@@ -24,12 +23,12 @@ describe Served::Resource::Base do
         end
       end
     end
-  }
+  end
 
   before :each do
     Served.configure do |c|
       c.hosts = {
-          default: test_host
+        default: test_host
       }
     end
   end
@@ -40,40 +39,31 @@ describe Served::Resource::Base do
     before :all do
       Served.configure do |config|
         config.hosts = {
-            'some_module' => 'http://testhost:3000'
+          'some_module' => 'http://testhost:3000'
         }
       end
     end
 
     context 'configuration' do
-
       describe '::resource_name' do
-
         it 'returns the tableized name of the class' do
           expect(subject.resource_name).to eq 'resource_tests'
         end
-
       end
 
       describe '::host' do
-
         it 'returns the url for SomeModule host' do
           expect(subject.host).to eq test_host
         end
-
       end
 
       describe '::client' do
-
         it 'creates a new connection instance' do
           expect(subject.client).to be_a(Served::HTTPClient)
         end
-
       end
 
-
       describe '::headers' do
-
         it 'sets the headers correctly' do
           expect(subject.headers[:foo]).to eq :bar
         end
@@ -89,13 +79,11 @@ describe Served::Resource::Base do
             expect(subject.headers[k]).to eq v
           end
         end
-
       end
     end
 
     context 'resource model' do
       describe '::find' do
-
         let(:instance) { double(subject) }
 
         it 'creates a new instance of itself with the provided id and calls reload' do
@@ -103,41 +91,35 @@ describe Served::Resource::Base do
           expect(instance).to receive(:reload).and_return(true)
           subject.find(1)
         end
-
       end
     end
   end
 
   describe 'instance methods' do
-    subject { klass.new({attr1: 1}) }
-    let(:response) { {attr2: 2, attr3: 3} }
+    subject { klass.new(attr1: 1) }
+    let(:response) { { attr2: 2, attr3: 3 } }
 
     context '#save' do
-
-
       it 'calls #put when an id is present' do
         subject.id = 1
         expect(subject).to receive(:put).and_return(response)
-        expect(subject).to receive(:reload_with_attributes).and_return({subject.resource_name => response})
+        expect(subject).to receive(:reload_with_attributes).and_return(subject.resource_name => response)
         subject.save
       end
 
       it 'calls #save when an id is not present' do
         expect(subject).to receive(:post).and_return(response)
-        expect(subject).to receive(:reload_with_attributes).and_return({subject.resource_name => response})
+        expect(subject).to receive(:reload_with_attributes).and_return(subject.resource_name => response)
         subject.save
       end
-
     end
 
     context '#reload' do
-
       it 'reloads with the response from get' do
         expect(subject).to receive(:get).and_return(response)
         expect(subject).to receive(:reload_with_attributes).with(response)
         subject.reload
       end
-
     end
 
     context '#destroy' do

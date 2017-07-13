@@ -10,7 +10,6 @@ module Served
       def serialize_response(response)
         response
       end
-
     end
   end
 end
