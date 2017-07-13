@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.0
+* Install rubocop and make everything compliant.
+* Improve error messaging for inclusion validations.
+
 ## 0.3.3
 * fixes regression where #presenter is not respected
 
