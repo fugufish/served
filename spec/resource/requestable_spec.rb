@@ -32,7 +32,6 @@ describe Served::Resource::Base do
   subject { klass }
 
   describe '#handle_response' do
-
     describe '200' do
       it 'calls load' do
         expect(subject).to receive(:load)
@@ -44,7 +43,7 @@ describe Served::Resource::Base do
       let(:response_code) { 204 }
 
       it 'returns attributes' do
-        expect(subject.handle_response(response)).to eq({ id: {}})
+        expect(subject.handle_response(response)).to eq(id: {})
       end
     end
 
@@ -63,10 +62,9 @@ describe Served::Resource::Base do
       subject { JsonApiResource }
 
       it 'raises an exception' do
-          expect(subject.serializer).to receive(:load)
-          subject.handle_response(response)
+        expect(subject.serializer).to receive(:load)
+        subject.handle_response(response)
       end
     end
   end
 end
-

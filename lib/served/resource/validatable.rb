@@ -6,15 +6,18 @@ module Served
 
       # Supported Validation Types
       SUPPORTED_VALIDATIONS = [
-          :presence,
-          :numericality,
-          :format,
-          :inclusion,
-      ]
+        :presence,
+        :numericality,
+        :format,
+        :inclusion
+      ].freeze
 
-       # Saves a resource and raises an error if the save fails.
+      # Saves a resource and raises an error if the save fails.
       def save!
-        raise ::Served::Resource::ResourceInvalid.new(self) unless run_validations! && save(false)
+        unless run_validations! && save(false)
+          raise ::Served::Resource::ResourceInvalid.new(self)
+        end
+
         true
       end
 
@@ -31,9 +34,8 @@ module Served
       end
 
       module Prepend
-
-        def save(with_validations=true)
-          return false if (with_validations && self.class.validate_on_save && !valid?)
+        def save(with_validations = true)
+          return false if with_validations && self.class.validate_on_save && !valid?
           super()
         end
 
@@ -47,18 +49,14 @@ module Served
           end
           errors.empty?
         end
-
       end
 
       module ClassMethods
-
         module Prepend
-
-          def attribute(name, options={})
+          def attribute(name, options = {})
             super
             set_validations_for_attribute(name, options)
           end
-
         end
 
         private
@@ -69,9 +67,7 @@ module Served
             validates name, validation => options[validation] if options[validation]
           end
         end
-
       end
-
     end
   end
 end
