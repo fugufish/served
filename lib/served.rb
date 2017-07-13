@@ -15,3 +15,5 @@ require 'served/serializers'
 
 require 'served/serializers/json_api/error'
 require 'served/serializers/json_api/errors'
+
+I18n.load_path << File.expand_path("served/locale/en.yml", __dir__)
