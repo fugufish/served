@@ -55,6 +55,17 @@ describe Served::Resource::Base do
           subject.handle_response(response)
         end.to raise_exception Served::Resource::MovedPermanently
       end
+
+      context 'with an empty response body' do
+        let(:response_code) { 408 }
+        let(:response) { double(body: '', code: response_code) }
+
+        it 'raises an exception' do
+          expect do
+            subject.handle_response(response)
+          end.to raise_exception Served::Resource::RequestTimeout
+        end
+      end
     end
 
     describe 'do not raise on exceptions' do
