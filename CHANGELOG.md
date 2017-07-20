@@ -1,6 +1,7 @@
 # Changelog
 
-## 0.4.1
+## HEAD
+* update CI to cover latest version so of ruby
 * Fixes unhandled exception when error response isn't valid JSON
 
 ## 0.4.0
