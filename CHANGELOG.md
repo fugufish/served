@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.4.1
+* Fixes unhandled exception when error response isn't valid JSON
+
 ## 0.4.0
 * Install rubocop and make everything compliant.
 * Improve error messaging for inclusion validations.
