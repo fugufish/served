@@ -68,6 +68,16 @@ describe Served::Resource::Base do
       end
     end
 
+    describe 'generic error codes' do
+      let(:response_code) { 504 }
+
+      it 'raises an exception' do
+        expect do
+          subject.handle_response(response)
+        end.to raise_exception Served::Resource::ServerError
+      end
+    end
+
     describe 'do not raise on exceptions' do
       let(:response_code) { 301 }
       subject { JsonApiResource }
