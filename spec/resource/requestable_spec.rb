@@ -78,6 +78,17 @@ describe Served::Resource::Base do
       end
     end
 
+    describe 'unknown error codes' do
+      let(:response_code) { 601 }
+
+      it 'raises an exception' do
+        expect { subject.handle_response(response) }.to raise_exception do |exception|
+          expect(exception).to be_a(Served::Resource::HttpError)
+          expect(exception.code).to eq 601
+        end
+      end
+    end
+
     describe 'do not raise on exceptions' do
       let(:response_code) { 301 }
       subject { JsonApiResource }

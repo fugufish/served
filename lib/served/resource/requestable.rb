@@ -67,7 +67,7 @@ module Served
       module ClassMethods
         def handle_response(response)
           if raise_on_exceptions
-            handler = handlers[response.code]
+            handler = handlers.fetch(response.code) { proc { HttpError } }
             if handler.is_a? Proc
               result = handler.call(response)
             else
