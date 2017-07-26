@@ -94,7 +94,7 @@ module Served
           raise HandlerRequired unless symbol_or_proc || block_given?
           if code_or_range.is_a?(Range) || code_or_range.is_a?(Array)
             code_or_range.each do |c|
-              handlers[c] = symbol_or_proc || block
+              handlers[c] = symbol_or_proc || block unless handlers.key?(c)
             end
           else
             handlers[code_or_range] = symbol_or_proc || block
