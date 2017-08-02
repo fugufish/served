@@ -42,10 +42,12 @@ module Served
         end
 
         handle((200..201), :load)
-        handle([204, 202]) { attributes }
+        handle([202, 204]) { attributes }
+
+        handle(301) { Resource::MovedPermanently }
+        handle([302, 303, 304, 305, 307, 308]) { Resource::Redirection }
 
         # 400 level errors
-        handle(301) { Resource::MovedPermanently }
         handle(400) { Resource::BadRequest }
         handle(401) { Resource::Unauthorized }
         handle(403) { Resource::Forbidden }
@@ -54,16 +56,18 @@ module Served
         handle(406) { Resource::NotAcceptable }
         handle(408) { Resource::RequestTimeout }
         handle(422) { Resource::UnprocessableEntity }
+        handle((400..499)) { Resource::ClientError }
 
         # 500 level errors
         handle(500) { Resource::InternalServerError }
         handle(503) { Resource::BadGateway }
+        handle((500..599)) { Resource::ServerError }
       end
 
       module ClassMethods
         def handle_response(response)
           if raise_on_exceptions
-            handler = handlers[response.code]
+            handler = handlers.fetch(response.code) { proc { HttpError } }
             if handler.is_a? Proc
               result = handler.call(response)
             else
@@ -71,7 +75,7 @@ module Served
             end
 
             if result.respond_to?(:ancestors) && result.ancestors.include?(HttpError)
-              raise result.new(self, response)
+              raise result.new(response.code, self, response)
             end
             result
           else
@@ -90,7 +94,7 @@ module Served
           raise HandlerRequired unless symbol_or_proc || block_given?
           if code_or_range.is_a?(Range) || code_or_range.is_a?(Array)
             code_or_range.each do |c|
-              handlers[c] = symbol_or_proc || block
+              handlers[c] = symbol_or_proc || block unless handlers.key?(c)
             end
           else
             handlers[code_or_range] = symbol_or_proc || block

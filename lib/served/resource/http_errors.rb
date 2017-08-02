@@ -7,24 +7,20 @@ module Served
       attr_reader :response
       attr_reader :code
 
-      # Defined in individual error classes
-      def self.code
-        raise NotImplementedError
-      end
+      def initialize(code, resource, response)
+        @code = code
 
-      def initialize(resource, response)
         if resource.serializer.respond_to? :exception
           serialized = resource.serializer.exception(response.body).symbolize_keys!
 
           @error            = serialized[:error]
           @message          = serialized[:exception]
           @server_backtrace = serialized[:backtrace]
-          @code             = serialized[:code] || serialized[:code] = self.class.code
           @response         = OpenStruct.new(serialized) # TODO: remove in served 1.0, used for backwards compat
 
           super("An error '#{code} #{message}' occurred while making this request")
         end
-        super "An error occurred '#{self.class.code}'"
+        super "An error occurred '#{code}'"
       end
 
       def status
@@ -32,81 +28,60 @@ module Served
       end
     end
 
-    # 301 MovedPermanently
-    class MovedPermanently < HttpError
-      def self.code
-        301
-      end
+    # 302, 303, 307
+    class Redirection < HttpError
     end
 
-    # 400 BadRequest
-    class BadRequest < HttpError
-      def self.code
-        400
-      end
+    # 301 Moved Permanently
+    class MovedPermanently < Redirection
+    end
+
+    # 401-499
+    class ClientError < HttpError
+    end
+
+    # 400 Bad Request
+    class BadRequest < ClientError
     end
 
     # 401 Unauthorized
-    class Unauthorized < HttpError
-      def self.code
-        401
-      end
+    class Unauthorized < ClientError
     end
 
     # 403 Forbidden
-    class Forbidden < HttpError
-      def self.code
-        403
-      end
+    class Forbidden < ClientError
     end
 
-    # 404 NotFound
-    class NotFound < HttpError
-      def self.code
-        404
-      end
+    # 404 Not Found
+    class NotFound < ClientError
     end
 
-    # 405 MethodNotAllowed
-    class MethodNotAllowed < HttpError
-      def self.code
-        405
-      end
+    # 405 Method Not Allowed
+    class MethodNotAllowed < ClientError
     end
 
-    # 406 NotAcceptable
-    class NotAcceptable < HttpError
-      def self.code
-        406
-      end
+    # 406 Not Acceptable
+    class NotAcceptable < ClientError
     end
 
-    # 408 RequestTimeout
-    class RequestTimeout < HttpError
-      def self.code
-        408
-      end
+    # 408 Request Timeout
+    class RequestTimeout < ClientError
     end
 
-    # 422 UnprocessableEntity
-    class UnprocessableEntity < HttpError
-      def self.code
-        422
-      end
+    # 422 Unprocessable Entity
+    class UnprocessableEntity < ClientError
     end
 
-    # 500 InternalServerError
-    class InternalServerError < HttpError
-      def self.code
-        500
-      end
+    # 5xx Server Error
+    class ServerError < HttpError
     end
 
-    # 503 BadGateway
-    class BadGateway < HttpError
-      def self.code
-        503
-      end
+    # 500 Internal Server Error
+    class InternalServerError < ServerError
+    end
+
+    # 503 Bad Gateway
+    class BadGateway < ServerError
     end
   end
 end
