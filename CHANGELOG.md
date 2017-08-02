@@ -1,8 +1,9 @@
 # Changelog
 
-## HEAD
+## 0.4.1
 * update CI to cover latest version so of ruby
 * Fixes unhandled exception when error response isn't valid JSON
+* Fix HTTP error handling to all codes are dealt with consistently.
 
 ## 0.4.0
 * Install rubocop and make everything compliant.
