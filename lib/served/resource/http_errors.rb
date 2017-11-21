@@ -18,8 +18,9 @@ module Served
           @server_backtrace = serialized[:backtrace]
           @response         = OpenStruct.new(serialized) # TODO: remove in served 1.0, used for backwards compat
 
-          super("An error '#{code} #{message}' occurred while making this request")
+          return super("An error '#{code} #{message}' occurred while making this request")
         end
+
         super "An error occurred '#{code}'"
       end
 
