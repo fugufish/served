@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.4.2
+* Fix error handling so specific error messages appear correctly.
+
 ## 0.4.1
 * update CI to cover latest version so of ruby
 * Fixes unhandled exception when error response isn't valid JSON
