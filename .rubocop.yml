@@ -22,6 +22,10 @@ Style/StringLiterals:
 Style/SymbolArray:
   Enabled: false
 
+Layout/EmptyLinesAroundArguments:
+  Exclude:
+    - 'spec/resource/serializable_spec.rb'
+
 Layout/MultilineMethodCallIndentation:
   EnforcedStyle: indented
 

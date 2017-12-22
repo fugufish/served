@@ -49,7 +49,6 @@ module Served
 
       def initialize(hash = {})
         reload_with_attributes(normalize_keys(hash))
-        self
       end
 
       # @return [Array] the keys for all the defined attributes

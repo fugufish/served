@@ -32,7 +32,7 @@ module Served
 
             define_singleton_method(name) do |value = nil|
               instance_variable_set(:"@_c_#{name}", value) if value
-              value = instance_variable_get(:"@_c_#{name}") unless value
+              value ||= instance_variable_get(:"@_c_#{name}")
               return instance_eval(&value) if value.is_a? Proc
               value
             end

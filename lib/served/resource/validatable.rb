@@ -14,9 +14,7 @@ module Served
 
       # Saves a resource and raises an error if the save fails.
       def save!
-        unless run_validations! && save(false)
-          raise ::Served::Resource::ResourceInvalid.new(self)
-        end
+        raise ::Served::Resource::ResourceInvalid.new(self) unless run_validations! && save(false)
 
         true
       end
