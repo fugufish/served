@@ -1,4 +1,5 @@
 require 'spec_helper'
+
 describe Served::Resource::Serializable do
   let!(:attr) do
     Class.new(Served::Attribute::Base) do

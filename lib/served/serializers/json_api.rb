@@ -68,7 +68,7 @@ module Served
       end
 
       def self.merge_relationships(restructured, data, included)
-        data['relationships'].keys.each do |relationship|
+        data['relationships'].each_key do |relationship|
           rel = data['relationships'][relationship]
           next unless rel && rel['data']
           rel_data = rel['data']

@@ -26,7 +26,7 @@ module Served
 
       def self.exception(data)
         JSON.parse(data)
-      rescue
+      rescue StandardError
         {}
       end
     end
