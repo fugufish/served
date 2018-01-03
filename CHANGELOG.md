@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.4.3
+* Fix rubocop failures.
+
 ## 0.4.2
 * Fix error handling so specific error messages appear correctly.
 
