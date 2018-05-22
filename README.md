@@ -76,7 +76,7 @@ options are:
 ## Serialization
 
 Attributes can be serialized as Ruby objects when the `serialize:` option is passed to `#attribute`. This can be any
-primitive object (`Fixnum`, `String`, `Symbol`, etc.) or any object whose initializer accepts a single `Hash` or `Array`
+primitive object (`Integer`, `String`, `Symbol`, etc.) or any object whose initializer accepts a single `Hash` or `Array`
 as an argument and responds to `to_json`. This also means that Served resources can be used as nested objects as well, 
 which can allow for strict request validation (as explained in the next section).
 

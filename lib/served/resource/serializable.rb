@@ -44,7 +44,7 @@ module Served
         def attribute_serializer_for(type)
           # case statement wont work here because of how it does class matching
           return ->(v) { return v }              unless type # nil
-          return ->(v) { return v.try(:to_i)   } if type == Integer || type == Fixnum
+          return ->(v) { return v.try(:to_i)   } if type <= Integer
           return ->(v) { return v.try(:to_s)   } if type == String
           return ->(v) { return v.try(:to_sym) } if type == Symbol
           return ->(v) { return v.try(:to_f)   } if type == Float

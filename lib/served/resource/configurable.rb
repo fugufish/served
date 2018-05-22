@@ -15,7 +15,7 @@ module Served
             super
             instance_variables.each do |v|
               instance = instance_variable_get(v)
-              instance = instance.clone unless instance.is_a? Fixnum
+              instance = instance.clone unless instance.is_a? Integer
               subclass.send(:instance_variable_set, v, instance) if v.to_s =~ /@_c_/
             end
           end
