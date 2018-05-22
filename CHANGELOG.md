@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.4.4
+* Stop referencing Fixnum directly to avoid deprecation warnings in higher versions of Ruby.
+
 ## 0.4.3
 * Fix rubocop failures.
 
