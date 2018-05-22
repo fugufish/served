@@ -105,9 +105,9 @@ module Served
         #
         # @param headers [Hash] the headers to send with each requesat
         # @return headers [Hash] the default headers for the class
-        def headers(h = {})
+        def headers(header_hash = {})
           headers ||= _headers
-          _headers(headers.merge!(h)) unless h.empty?
+          _headers(headers.merge!(header_hash)) unless header_hash.empty?
           _headers
         end
 
