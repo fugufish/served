@@ -32,6 +32,12 @@ Layout/MultilineMethodCallIndentation:
 Layout/MultilineOperationIndentation:
   Enabled: false
 
+Layout/AlignHash:
+  Enabled: false
+
+Layout/EmptyLineAfterGuardClause:
+  Enabled: false
+
 Metrics/LineLength:
   Max: 130
 

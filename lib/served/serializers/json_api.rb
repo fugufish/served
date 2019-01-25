@@ -21,7 +21,7 @@ module Served
       def self.parse_errors(result, resource)
         result.each do |error|
           if error.source_parameter &&
-              resource.attributes.keys.include?(error.source_parameter.to_sym)
+              resource.attributes.key?(error.source_parameter.to_sym)
             resource.errors.add(error.source_parameter.to_sym, error_message(error))
           else
             resource.errors.add(:base, error_message(error))
