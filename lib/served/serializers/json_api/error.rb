@@ -46,7 +46,7 @@ module Served
 
         def source
           res = attrs.fetch(:source, {})
-          res ? res : {}
+          res || {}
         end
 
         protected
