@@ -26,7 +26,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'http',     '~> 1.0.4'
   spec.add_development_dependency 'httparty', '~> 0.14.0'
   spec.add_development_dependency 'patron',   '~> 0.5.0'
-  spec.add_development_dependency 'rake',     '~> 10.0'
+  spec.add_development_dependency 'rake',     '>= 12.3.3'
   spec.add_development_dependency 'rspec',    '~> 3.4.0'
   spec.add_development_dependency 'rubocop',  '~> 0.49'
 end
