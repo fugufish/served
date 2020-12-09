@@ -6,8 +6,8 @@ module Served
     # {https://github.com/jnunemaker/httparty HTTParty} client
     class HTTParty < Base
       def get(endpoint, id, params = {})
-        ::HTTParty.get(template.expand(id:       id,
-                                       query:    params,
+        ::HTTParty.get(template.expand(id: id,
+                                       query: params,
                                        resource: endpoint).to_s,
                        headers: headers,
                        timeout: timeout)
@@ -16,10 +16,10 @@ module Served
       end
 
       def put(endpoint, id, body, params = {})
-        ::HTTParty.put(template.expand(id:       id,
-                                       query:    params,
+        ::HTTParty.put(template.expand(id: id,
+                                       query: params,
                                        resource: endpoint).to_s,
-                       body:    body,
+                       body: body,
                        headers: headers,
                        timeout: timeout)
       rescue Errno::ECONNREFUSED
@@ -36,8 +36,8 @@ module Served
       end
 
       def delete(endpoint, id, params = {})
-        ::HTTParty.delete(template.expand(id:       id,
-                                          query:    params,
+        ::HTTParty.delete(template.expand(id: id,
+                                          query: params,
                                           resource: endpoint).to_s,
                           headers: headers,
                           timeout: timeout)

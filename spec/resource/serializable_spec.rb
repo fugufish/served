@@ -128,7 +128,7 @@ describe Served::Resource::Serializable do
               @field = field
             end
 
-            def to_json
+            def to_json(*_args)
               { field: @field }.to_json
             end
           end.new(field)

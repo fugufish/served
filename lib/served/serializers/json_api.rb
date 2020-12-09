@@ -71,6 +71,7 @@ module Served
         data['relationships'].each_key do |relationship|
           rel = data['relationships'][relationship]
           next unless rel && rel['data']
+
           rel_data = rel['data']
 
           relationship_attributes = if rel_data.is_a?(Array)

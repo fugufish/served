@@ -77,6 +77,7 @@ module Served
             if result.respond_to?(:ancestors) && result.ancestors.include?(HttpError)
               raise result.new(response.code, self, response)
             end
+
             result
           else
             serializer.load(self, response)
@@ -92,6 +93,7 @@ module Served
         # @yieldreturn [Hash] a hash of attributes, if an error class is returned it will be raised
         def handle(code_or_range, symbol_or_proc = nil, &block)
           raise HandlerRequired unless symbol_or_proc || block_given?
+
           if code_or_range.is_a?(Range) || code_or_range.is_a?(Array)
             code_or_range.each do |c|
               handlers[c] = symbol_or_proc || block unless handlers.key?(c)
@@ -103,11 +105,11 @@ module Served
 
         # Defines the default headers that should be used for the request.
         #
-        # @param headers [Hash] the headers to send with each requesat
+        # @param request_headers [Hash] the headers to send with each request
         # @return headers [Hash] the default headers for the class
-        def headers(h = {})
+        def headers(request_headers = {})
           headers ||= _headers
-          _headers(headers.merge!(h)) unless h.empty?
+          _headers(headers.merge!(request_headers)) unless request_headers.empty?
           _headers
         end
 

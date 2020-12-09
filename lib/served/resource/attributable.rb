@@ -19,6 +19,7 @@ module Served
         # @param name [Symbol] the name of the attribute
         def attribute(name, options = {})
           return if attributes.include?(name)
+
           attributes[name] = options
           attr_accessor name
         end
@@ -79,6 +80,7 @@ module Served
       def set_attribute_defaults
         self.class.attributes.each do |attr, options|
           next if options[:default].nil? || send(attr)
+
           set_attribute(attr, options[:default])
         end
       end

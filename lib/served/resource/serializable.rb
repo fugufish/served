@@ -28,6 +28,7 @@ module Served
             raise ResponseInvalid.new(self, e)
           end
           raise ResponseInvalid.new(self) unless result
+
           result
         end
 
@@ -49,9 +50,11 @@ module Served
           return ->(v) { return v.try(:to_sym) } if type == Symbol
           return ->(v) { return v.try(:to_f)   } if type == Float
           return ->(v) { return v.try(:to_a)   } if type == Array
+
           if type == Boolean
             return lambda do |v|
               return false unless v == "true" || v.is_a?(TrueClass)
+
               true
             end
           end
@@ -66,6 +69,7 @@ module Served
 
         def serialize_attribute(attr, value)
           return false unless attributes[attr.to_sym]
+
           serializer = attribute_serializer_for(attributes[attr.to_sym][:serialize])
           if value.is_a? Array
             # TODO: Remove the Array class check below in 1.0, only here

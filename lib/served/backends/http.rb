@@ -17,8 +17,8 @@ module Served
         response = ::HTTP
           .timeout(global: timeout)
           .headers(headers)
-          .put(template.expand(id:       id,
-                               query:    params,
+          .put(template.expand(id: id,
+                               query: params,
                                resource: endpoint).to_s,
                body: body)
         serialize_response(response)
@@ -30,7 +30,7 @@ module Served
         response = ::HTTP
           .timeout(global: timeout)
           .headers(headers)
-          .post(template.expand(query:    params,
+          .post(template.expand(query: params,
                                 resource: endpoint).to_s,
                 body: body)
         serialize_response(response)
@@ -42,9 +42,9 @@ module Served
         response = ::HTTP
           .timeout(global: timeout)
           .headers(headers)
-          .delete(template.expand(query:    params,
+          .delete(template.expand(query: params,
                                   resource: endpoint,
-                                  id:       id).to_s)
+                                  id: id).to_s)
         serialize_response(response)
       rescue ::HTTP::ConnectionError
         raise Served::HTTPClient::ConnectionFailed.new(resource)

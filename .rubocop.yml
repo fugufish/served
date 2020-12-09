@@ -52,6 +52,3 @@ Metrics/BlockLength:
 
 Lint/UnifiedInteger:
   Enabled: false
-
-Performance/RegexpMatch:
-  Enabled: false

@@ -7,8 +7,8 @@ module Served
     class Patron < Base
       def get(endpoint, id, params = {})
         serialize_response(::Patron::Session.new(headers: headers, timeout: timeout)
-                               .get(template.expand(id:       id,
-                                                    query:    params,
+                               .get(template.expand(id: id,
+                                                    query: params,
                                                     resource: endpoint).to_s))
       rescue ::Patron::ConnectionFailed
         raise Served::HTTPClient::ConnectionFailed.new(resource)
@@ -16,8 +16,8 @@ module Served
 
       def put(endpoint, id, body, params = {})
         serialize_response(::Patron::Session.new(headers: headers, timeout: timeout)
-                               .put(template.expand(id:       id,
-                                                    query:    params,
+                               .put(template.expand(id: id,
+                                                    query: params,
                                                     resource: endpoint).to_s, body))
       rescue ::Patron::ConnectionFailed
         raise Served::HTTPClient::ConnectionFailed.new(resource)
@@ -25,7 +25,7 @@ module Served
 
       def post(endpoint, body, params = {})
         serialize_response(::Patron::Session.new(headers: headers, timeout: timeout)
-                               .post(template.expand(query:    params,
+                               .post(template.expand(query: params,
                                                      resource: endpoint).to_s, body))
       rescue ::Patron::ConnectionFailed
         raise Served::HTTPClient::ConnectionFailed.new(resource)
@@ -34,8 +34,8 @@ module Served
       def delete(endpoint, id, params = {})
         serialize_response(::Patron::Session.new(headers: headers,
                                                  timeout: timeout)
-                               .delete(template.expand(id:       id,
-                                                       query:    params,
+                               .delete(template.expand(id: id,
+                                                       query: params,
                                                        resource: endpoint).to_s))
       rescue ::Patron::ConnectionFailed
         raise Served::HTTPClient::ConnectionFailed.new(resource)

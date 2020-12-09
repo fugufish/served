@@ -34,6 +34,7 @@ module Served
       module Prepend
         def save(with_validations = true)
           return false if with_validations && self.class.validate_on_save && !valid?
+
           super()
         end
 

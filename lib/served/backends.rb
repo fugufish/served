@@ -4,8 +4,8 @@ module Served
     # @private
     def self.[](backend)
       @backends ||= {
-        http:     'HTTP',
-        patron:   'Patron',
+        http: 'HTTP',
+        patron: 'Patron',
         httparty: 'HTTParty'
       }
       if @backends[backend]
