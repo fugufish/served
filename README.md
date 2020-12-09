@@ -20,9 +20,9 @@ Served.configure do |config|
   config.hosts = {
     'some_service' => 'http://localhost:3000'
    }
-   
+
    config.timeout = 100
-   
+
    config.backend = :patron
    config.serializer = Served::Serializers::Json
 end
@@ -30,7 +30,7 @@ end
 
 ## Hosts
 Served models derive their hostname by mapping their parent module to the `Served::hosts` configuration hash. For
-example, `SomeService::SomeResource` would look up its host configuration at 
+example, `SomeService::SomeResource` would look up its host configuration at
 `Served.config.hosts['some_service']`.
 
 The host configuration accepts an [Addressable](https://github.com/sporkmonger/addressable) template mapping
@@ -48,8 +48,8 @@ maintained for backwards compatibility, however the extension will likely be rem
 Sets the request timeout in milliseconds.
 
 ## Backend
-Configure the HTTP client backend. Supports either :http (default), which will use the HTTP client, or :patron, which 
-will use Patron. Patron is suggested for use if high concurrency between requests is required. Also requires the 
+Configure the HTTP client backend. Supports either :http (default), which will use the HTTP client, or :patron, which
+will use Patron. Patron is suggested for use if high concurrency between requests is required. Also requires the
 machine to have libcurl.
 
 # Defining a Resource
@@ -76,14 +76,14 @@ options are:
 ## Serialization
 
 Attributes can be serialized as Ruby objects when the `serialize:` option is passed to `#attribute`. This can be any
-primitive object (`Fixnum`, `String`, `Symbol`, etc.) or any object whose initializer accepts a single `Hash` or `Array`
-as an argument and responds to `to_json`. This also means that Served resources can be used as nested objects as well, 
+primitive object (`Integer`, `String`, `Symbol`, etc.) or any object whose initializer accepts a single `Hash` or `Array`
+as an argument and responds to `to_json`. This also means that Served resources can be used as nested objects as well,
 which can allow for strict request validation (as explained in the next section).
 
 When `#save` is called on a resource, non primitive objects will be serialized for transport using their `to_json`
 method, this also means that attributes can be valid `ActiveRecord` objects. Served provides a generic validatable
-non-resource class called `Served::Attribute::Base` that can be used to define deep nested object mapping for 
-complex json data strucutres. 
+non-resource class called `Served::Attribute::Base` that can be used to define deep nested object mapping for
+complex json data strucutres.
 
 Example:
 
@@ -97,9 +97,9 @@ class SomeService::SomeResource < Served::Resource::Base
 end
 ```
 
-## JsonAPI 
+## JsonAPI
 
-Served does support JSON API responses and comes with a dedicated serializer. Nested resources are supported as well. 
+Served does support JSON API responses and comes with a dedicated serializer. Nested resources are supported as well.
 By default `Served` is raising exceptions on error.
 
 ```ruby
@@ -127,9 +127,9 @@ end
 
 
 ## Validations
-`Served::Resource::Base` includes `AciveModel::Validations` and supports all validation methods with the exception of 
-`Uniquness`. As a shotcut validations can be passed to the `#attribute` method much in the same way as it can be passed 
-to the `#validate` method. 
+`Served::Resource::Base` includes `AciveModel::Validations` and supports all validation methods with the exception of
+`Uniquness`. As a shotcut validations can be passed to the `#attribute` method much in the same way as it can be passed
+to the `#validate` method.
 
 Example:
 
@@ -137,7 +137,7 @@ Example:
 class SomeService::SomeResource < Served::Resource::Base
   attribute :name, presence: true, format: {with: /[a-z]+/}, length: { within: (3..10) }
   attribute :date
-  
+
   validates_each :date do |record, attr, value|
     # ...
    end
@@ -170,9 +170,9 @@ a resource is new or not based on the presence of an id.
 
 ### Service Errors
 
-If the service returns an error, by default an error is thrown. If you want it to behave more like AR where you get 
+If the service returns an error, by default an error is thrown. If you want it to behave more like AR where you get
 validation errors and a `save` returns `true` or `false`, you can configure that.
- 
+
 
 ```ruby
 class JsonApiResource < Served::Resource::Base
@@ -180,4 +180,4 @@ class JsonApiResource < Served::Resource::Base
     false
   end
 end
-``` 
+```

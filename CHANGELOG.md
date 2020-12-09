@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.4.4
+* Fixed Fixnum is deprecated warning.
+
 ## 0.4.3
 * Fix rubocop failures.
 
@@ -49,7 +52,7 @@
 * various refactoring
 * add `validation_on_save` option to allow skipping validation on save
 * better configuration inheritance in resources
-* if using HTTParty as a backend `Errno::ECONNREFUSED` will no longer be returned for connection errors, 
+* if using HTTParty as a backend `Errno::ECONNREFUSED` will no longer be returned for connection errors,
 `Served::HTTPClient::ConnectionFailed` will be raised instead
 
 ## 0.1.12
@@ -60,7 +63,7 @@
  * add resource level `reasource_name` option
  * add resource level `host` option, `host_config` will be deprecated in 0.2.0
  * add `Served::Attribute::Base` class
- 
+
 ## 0.1.11
  * add resource level `reasource_name` option
  * add resource level `host` option

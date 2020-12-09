@@ -14,7 +14,7 @@ describe Served::Resource::Serializable do
       end
 
       include Served::Resource::Serializable
-      attribute :fixnum,  serialize: Fixnum
+      attribute :fixnum,  serialize: Integer
       attribute :string,  serialize: String
       attribute :symbol,  serialize: Symbol
       attribute :float,   serialize: Float
